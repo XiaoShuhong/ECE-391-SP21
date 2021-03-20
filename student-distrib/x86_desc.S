@@ -8,7 +8,7 @@
 
 .globl ldt_size, tss_size
 .globl gdt_desc, ldt_desc, tss_desc
-.globl tss, tss_desc_ptr, ldt, ldt_desc_ptr
+.globl tss, tss_desc_ptr, ldt, ldt_desc_ptr,gdt_desc_ptr
 .globl gdt_ptr
 .globl idt_desc_ptr, idt
 
@@ -93,6 +93,12 @@ ldt_bottom:
 
 .align 4
     .word 0 # Padding
+
+gdt_desc_ptr:
+    .word gdt_bottom - gdt - 1
+    .long gdt
+
+
 idt_desc_ptr:
     .word idt_bottom - idt - 1
     .long idt

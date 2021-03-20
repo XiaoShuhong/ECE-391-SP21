@@ -1,6 +1,8 @@
 # boot.S - start point for the kernel after GRUB gives us control
 # vim:ts=4 noexpandtab
 
+/*Version 1 :LYC 2021/3/20 18:45*/
+
 #define ASM     1
 
 #include "multiboot.h"
@@ -25,6 +27,23 @@ _start:
 
 continue:
     # Load the GDT
+    
+    /*Version 1 LYC*/
+    lgdt gdt_desc_ptr  /* load GDT's starting address and size to GDTR*/
+    
+
+    pushl %eax
+    pushl %edx
+    pushl %ecx 
+    pushfl        /*save caller registers and 'return registers'*/
+    call init_idt /*init IDT and load it*/
+    popfl 
+    popl %ecx 
+    popl %edx
+    popl %eax    /*return back*/
+    
+    /*Version 1 LYC*/
+
 
     # Load CS with the new descriptor value
     ljmp    $KERNEL_CS, $keep_going

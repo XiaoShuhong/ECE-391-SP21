@@ -8,7 +8,7 @@
 #include "i8259.h"
 #include "debug.h"
 #include "tests.h"
-
+// #include "idt.h"
 #define RUN_TESTS
 
 /* Macros. */

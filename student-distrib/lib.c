@@ -1,6 +1,8 @@
 /* lib.c - Some basic library functions (printf, strlen, etc.)
  * vim:ts=4 noexpandtab */
 
+/*Version 1 :ZLH 2021/3/21 22:00*/
+
 #include "lib.h"
 
 #define VIDEO       0xB8000
@@ -178,7 +180,13 @@ void putc(uint8_t c) {
         screen_x %= NUM_COLS;
         screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
     }
+/*Version 1 ZLH*/
+//check if the screen is full
+    if((screen_y) == NUM_ROWS){
+        scroll_up();
+    }
 }
+/*Version 1 ZLH*/
 
 /* int8_t* itoa(uint32_t value, int8_t* buf, int32_t radix);
  * Inputs: uint32_t value = number to convert
@@ -474,3 +482,38 @@ void test_interrupts(void) {
         video_mem[i << 1]++;
     }
 }
+
+
+
+/*Version 1 ZLH*/
+void scroll_up(void){
+
+    /* loop index */
+    int32_t i;
+    int32_t j;
+    int32_t origin;
+    int32_t update;
+
+/*update the current screen except the last line with the next line*/
+    for(i=0;i<NUM_ROWS-1;i++){
+        for(j=0;j<NUM_COLS;j++){
+            origin = NUM_COLS*(i+1) + j;
+            update = NUM_COLS*i + j;
+            *(uint8_t *)(video_mem + (update<<1)) = *(uint8_t *)(video_mem + (origin<<1)); 
+        }
+    }
+
+/*update the y value of the screen*/
+    screen_y = NUM_ROWS - 1;
+
+/*clean the last line*/
+    for(i = (NUM_ROWS - 1) * NUM_COLS; i < NUM_ROWS * NUM_COLS; i++){
+        *(uint8_t *)(video_mem + (i << 1)) = ' ';
+        *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
+    }
+/*Version 1 ZLH*/
+}
+
+
+
+

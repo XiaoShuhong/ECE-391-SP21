@@ -52,10 +52,13 @@ int idt_test(){
 
 int division_test(){
 	TEST_HEADER;
-
+	int i;
     int a=0;
     int b=4;
-    b=b/a;
+    for(i = 0;i<20;i++){
+	b=b/a;
+	}
+
 	return FAIL;
 }
 
@@ -68,6 +71,6 @@ int division_test(){
 /* Test suite entry point */
 void launch_tests(){
 	// TEST_OUTPUT("idt_test", idt_test());
-    // TEST_OUTPUT("division_test", division_test());
+     TEST_OUTPUT("division_test", division_test());
 	// launch your tests here
 }

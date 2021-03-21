@@ -3,6 +3,8 @@
  * vim:ts=4 noexpandtab
  */
 
+/*Version 1 XSH 2021/3/21 22:10*/
+
 #ifndef _X86_DESC_H
 #define _X86_DESC_H
 
@@ -166,6 +168,84 @@ typedef union idt_desc_t {
 extern idt_desc_t idt[NUM_VEC];
 /* The descriptor used to load the IDTR */
 extern x86_desc_t idt_desc_ptr;
+
+
+
+/*Version 1 XSH*/
+#define four_k 4096
+extern PDE PD[entry_num];// __attribute__((aligned (four_k)));
+extern PTE PT[[entry_num]];
+typedef union PDE{// a union which for both 4K byte page table and 4M byte page, share the same memory
+    4k_PDE k;
+    4M_PDE M;
+}PDE;
+// build a page directory entry to a 4k page table
+typedef union 4K_PDE{
+    uint32_t val; // 32bit val, share same add with struct below it
+    struct{
+        uint32_t p :1;//bit 0 present
+        uint32_t r_w :1;//bit 1 read/write
+        uint32_t u_s :1;//bit 2 user/supervisor
+        uint32_t pwt :1;//bit 3 write-through
+        uint32_t pcd :1;//bit 4 cache disabled
+        uint32_t a :1;//bit 5 accessed
+        uint32_t reserved :1;//bit 6 reserved
+        uint32_t ps :1;//bit 7 page size 
+        uint32_t g :1;//bit 8 global page
+        uint32_t avail :3;//bit 9-11 available for system programmer' user
+        uint32_t ptb_add :20;//bit 12-31 page-table base address,most 20 bit
+    } __attribute__ ((packed));
+}4k_PDE
+
+//build a page directory entry for 4-MB pages
+typedef union 4M_PDE
+{
+    uint32_t val;// 32bit val, share same add with struct below it
+    struct{
+        uint32_t p:1;//bit 0 present
+        uint32_t r_w:1;//bit 1 read/write
+        uint32_t u_s :1;//bit 2 user/supervisor
+        uint32_t pwt :1;//bit 3 write-through
+        uint32_t pcd :1;//bit 4 cache disabled
+        uint32_t a :1;//bit 5 accessed
+        uint32_t d: 1;//bit6 dirty
+        uint32_t ps :1;//bit 7 page size 
+        uint32_t g :1;//bit 8 global page
+        uint32_t avail :3;//bit 9-11 available for system programmer' user
+        uint32_t pat: 1;//bit 12 page table attribute index
+        uint32_t reserved :9;//bit 13-21 reserved
+        uint32_t ptb_add :10;//bit 22-31 page-table base address,most 10 bit
+
+
+    } __attribute__ ((packed));
+
+}4M_PDE
+  
+typedef union PTE
+{
+    uint32_t val;// 32bit val, share same add with struct below it
+    struct{
+        uint32_t p:1;//bit 0 present
+        uint32_t r_w:1;//bit 1 read/write
+        uint32_t u_s :1;//bit 2 user/supervisor
+        uint32_t pwt :1;//bit 3 write-through
+        uint32_t pcd :1;//bit 4 cache disabled
+        uint32_t a :1;//bit 5 accessed
+        uint32_t d: 1;//bit6 dirty
+        uint32_t pat: 1;//bit 7 page table attribute index
+        uint32_t g :1;//bit 8 global page
+        uint32_t avail :3;//bit 9-11 available for system programmer' user
+        uint32_t ptb_add :20;//bit 12-31 page-table base address,most 20 bit
+
+
+
+
+    }__attribute__ ((packed));
+}PTE;
+/*Version 1 XSH*/
+
+
+
 
 /* Sets runtime parameters for an IDT entry */
 #define SET_IDT_ENTRY(str, handler)                              \

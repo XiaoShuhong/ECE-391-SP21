@@ -15,7 +15,7 @@
 #define COLOR_BG_ATTRIB      0xF7
 #define ATTRIB      0x7
 #define TERMINAL_BAR 5
-static char* video_mem = (char *)VIDEO;
+
 
 
 void init_rtc(){
@@ -64,7 +64,7 @@ void __rtc_interrupt_handler__(){
 
 
     
-    test_interrupts();
+    // test_interrupts();
 
 
 

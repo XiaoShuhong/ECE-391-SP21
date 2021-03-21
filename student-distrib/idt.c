@@ -1,12 +1,16 @@
 /*idt.c used to init interrupt description table*/
+
 /*Version 1 ML 2021/3/20 18:53*/
+/*Version 2 :LYC 2021/3/20 18:45*/
 
 /*Version 1 ML*/
 #include "x86_desc.h"
 #include "lib.h"
 #include "i8259.h"
 #include "idt.h"
-
+#include "rtc.h"
+#include "keyboard.h"
+#include "assembly.h"
 #define constuct_ex_handler(function_name, string)   \
 void function_name(){                                \
     printf("%s\n",string);                           \
@@ -99,9 +103,18 @@ void init_idt(){
     for (i=16; i<20; i++){
         idt[i].present = 1;
     }
+
+    /*Version 2 LYC*/
+    SET_IDT_ENTRY(idt[RTC_IDT_INDEX],rtc_interrupt_handler);
+    idt[RTC_IDT_INDEX].present=1;
+    SET_IDT_ENTRY(idt[KEYBOARD_IDT_INDEX],keyboard_interrupt_handler);
+    idt[KEYBOARD_IDT_INDEX].present=1;
+    /*Version 2 LYC*/
+    
     // set the special case
     lidt(idt_desc_ptr);
     sti();
     return;
 }
 /*Version 1 ML*/
+

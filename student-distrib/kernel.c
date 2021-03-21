@@ -1,6 +1,7 @@
 /* kernel.c - the C part of the kernel
  * vim:ts=4 noexpandtab
  */
+/*Version 1 :LYC 2021/3/21 13:47*/
 
 #include "multiboot.h"
 #include "x86_desc.h"
@@ -8,6 +9,9 @@
 #include "i8259.h"
 #include "debug.h"
 #include "tests.h"
+#include "rtc.h"
+#include "assembly.h"
+#include "keyboard.h"
 // #include "idt.h"
 #define RUN_TESTS
 
@@ -138,6 +142,12 @@ void entry(unsigned long magic, unsigned long addr) {
 
     /* Init the PIC */
     i8259_init();
+
+    /*Version 1 LYC*/
+    // init the rtc
+    init_rtc();
+    init_keyboard();
+    /*Version 1 LYC*/
 
     /* Initialize devices, memory, filesystem, enable device interrupts on the
      * PIC, any other initialization stuff... */

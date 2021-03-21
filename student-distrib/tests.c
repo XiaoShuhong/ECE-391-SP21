@@ -68,6 +68,6 @@ int division_test(){
 /* Test suite entry point */
 void launch_tests(){
 	// TEST_OUTPUT("idt_test", idt_test());
-    TEST_OUTPUT("division_test", division_test());
+    // TEST_OUTPUT("division_test", division_test());
 	// launch your tests here
 }

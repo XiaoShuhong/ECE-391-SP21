@@ -79,7 +79,7 @@ void __rtc_interrupt_handler__(){
 
 
     
-    // test_interrupts();
+    test_interrupts();
 
 
 

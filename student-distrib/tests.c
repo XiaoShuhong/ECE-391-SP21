@@ -12,10 +12,11 @@
 #include "lib.h"
 #include "i8259.h"
 #include "idt.h"
-
+#include "rtc.h"
 
 #define PASS 1
 #define FAIL 0
+#define KEYBOARD_IRQ 1
 
 /* format these macros as you see fit */
 #define TEST_HEADER 	\
@@ -99,6 +100,7 @@ void test_any_excp(){
 	/* change the following vector between 0-19(0x00-0x13) */ 
 	/* to test each corresponding exception handlers */
 	asm("int $0x08");
+	return PASS
 }
 
 /* test_i8259_disable_irq_garbage
@@ -113,6 +115,7 @@ void test_i8259_disable_irq_garbage(){
 	/*The interrupt from keyboard and rtc should still be aceepted*/
 	disable_irq(19);
 	disable_irq(1234);
+	return PASS
 }
 
 
@@ -125,8 +128,9 @@ void test_i8259_disable_irq_garbage(){
  */
 void test_i8259_disable_irq(){
 	/*send irq_num of keyboard and rtc and check whether it is masked*/
-	disable_irq(RTC_IDT_INDEX);
-	disable_irq(KEYBOARD_IDT_INDEX);
+	disable_irq(rtc_irq_number);
+	disable_irq(KEYBOARD_IRQ);
+	return PASS
 }
 
 /* test_i8259_enable_irq_garbage
@@ -140,6 +144,7 @@ void test_i8259_enable_irq_garbage(){
 	/*send garbage input to enable_irq nothing should happend*/
 	enable_irq(19);
 	enable_irq(1234);
+	return PASS
 }
 
 /* test_i8259_enable_irq
@@ -151,8 +156,8 @@ void test_i8259_enable_irq_garbage(){
  */
 void test_i8259_enable_irq(){
 	/*it should enable the interrupt from the keyboard and rtc after disable_irq is called*/
-	enable_irq(RTC_IDT_INDEX);
-	enable_irq(KEYBOARD_IDT_INDEX);
+	enable_irq(rtc_irq_number);
+	enable_irq(KEYBOARD_IRQ);
 }
 
 
@@ -212,10 +217,9 @@ int page_test(){
 void launch_tests(){
 	//TEST_OUTPUT("idt_test", idt_test());
     // TEST_OUTPUT("division_test", division_test());
-	// launch your tests here
 	// test_one_excp();
 	// test_i8259_disable_irq_garbage();
-	// test_i8259_disable_irq();
+	//test_i8259_disable_irq();
 	// test_i8259_enable_irq_garbage();
 	// test_i8259_enable_irq()
     //TEST_OUTPUT("page test", page_test());

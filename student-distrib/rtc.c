@@ -17,7 +17,13 @@
 #define TERMINAL_BAR 5
 
 
-
+/* init_rtc()
+ * 
+ * This function is used to init the RTC
+ * Inputs: None
+ * Outputs: None
+ * Side Effects: Enable the RTC the RTC interrupt( open irq 8)
+ */
 void init_rtc(){
     //reference:https://wiki.osdev.org/RTC
     cli();
@@ -41,6 +47,15 @@ void init_rtc(){
 }
 
 
+
+
+/* __rtc_interrupt_handler__()
+ * 
+ * This function is used as the handler to handle the RTC interrupt
+ * Inputs: None
+ * Outputs: None
+ * Side Effects: the characters on screen will alternate between a set of different characters at every fixed interval.
+ */
 void __rtc_interrupt_handler__(){
     cli();
 

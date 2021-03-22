@@ -1,7 +1,9 @@
 /*idt.c used to init interrupt description table*/
 
 /*Version 1 ML 2021/3/20 18:53*/
-/*Version 2 :LYC 2021/3/20 18:45*/
+/*Version 2 LYC 2021/3/20 18:45*/
+/*Version 3 ZLH 2021/3/22 19:00*/
+/*Version 4 ML 2021/3/22 19:53 add function header and comments*/
 
 /*Version 1 ML*/
 #include "x86_desc.h"
@@ -11,6 +13,17 @@
 #include "rtc.h"
 #include "keyboard.h"
 #include "assembly.h"
+
+/*Version 4 ML*/
+
+/* construct_ex_handler
+ * 
+ * This function is used to build the exception handler
+ * Inputs: function_name: the name of the exception
+ *         string: the string we want to print as out "bule screen"
+ * Outputs: None
+ * Side Effects: None
+ */
 #define constuct_ex_handler(function_name, string)   \
 void function_name(){                                \
     printf("%s\n",string);                           \
@@ -38,6 +51,19 @@ constuct_ex_handler(ex_machine_check,"ex_machine_check");
 constuct_ex_handler(ex_simd_floating_point_exception,"ex_simd_floating_point_exception");
 
 
+//This is only for checkpoint 1
+/*Version 3 ZLH*/
+constuct_ex_handler(system_call_handler,"system_call_handler");
+/*Version 3 ZLH*/
+
+
+/* init_idt()
+ * 
+ * This function is used to init the idt
+ * Inputs: None
+ * Outputs: None
+ * Side Effects: set the exception, interrupt, system call handler function pointers to out idt
+ */
 void init_idt(){
     cli();
     int i; //loop index
@@ -111,6 +137,11 @@ void init_idt(){
     idt[KEYBOARD_IDT_INDEX].present=1;
     /*Version 2 LYC*/
     
+    /*Version 3 ZLH*/
+    SET_IDT_ENTRY(idt[SYSTEM_IDT_INDEX],system_call_handler);
+    idt[SYSTEM_IDT_INDEX].present = 1;
+    /*Version 3 ZLH*/    
+
     // set the special case
     lidt(idt_desc_ptr);
     sti();

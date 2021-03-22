@@ -22,6 +22,16 @@
 
 /* Check if MAGIC is valid and print the Multiboot information structure
    pointed by ADDR. */
+
+
+/* 
+ * entry
+ *  DESCRIPTION: the entey of the system
+ *  INPUTS: none
+ *  OUTPUTS: none
+ *  RETURN VALUE: none
+ *  SIDE EFFECTS: start the whole system
+ */
 void entry(unsigned long magic, unsigned long addr) {
 
     multiboot_info_t *mbi;

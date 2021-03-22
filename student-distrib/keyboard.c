@@ -1,7 +1,9 @@
 /*keyboard.c used to init keyboard device*/
 /*Version 1 ML 2021/3/21 10:28*/
+/*Version 2 ML 2021/3/22 20:01 add function header and comments*/
 
 /*Version 1 ML*/
+/*Version 2 ML*/
 #include "x86_desc.h"
 #include "lib.h"
 #include "i8259.h"
@@ -81,11 +83,27 @@ unsigned char key2ascii_map[SCANCODESIZE][2] = {
 
 };
 
+/* init_keyboard()
+ * 
+ * This function is used init the keyboard device
+ * Inputs: None
+ * Outputs: None
+ * Side Effects: Enable the keyboard begins the interrupt
+ */
 void
 init_keyboard(void){
+    // cli();
     enable_irq(KEYBOARD_IRQ);
+    // sti();
 }
 
+/* keyboard_handler()
+ * 
+ * This function is used as the handler to handle the keyboard interrupt
+ * Inputs: None
+ * Outputs: None
+ * Side Effects: Send the scan code which sent by the keyboard device to our video memory to show it on the screen
+ */
 void
 keyboard_handler(void){
     cli();
@@ -97,9 +115,4 @@ keyboard_handler(void){
     sti();
 }
 /*Version 1 ML*/
-
-
-
-
-
-
+/*Version 2 ML*/

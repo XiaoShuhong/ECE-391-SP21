@@ -1,13 +1,20 @@
+
 /*Version 1 XSH 2021/3/21 22:10*/
 
-#include "page_assembly.h"
+// #include "page_assembly.h"
 #include "x86_desc.h"
 #include "page.h"
-void page_on2();
+void PAGE_ON();
 PDE PD[entry_num];// __attribute__((aligned (four_k)));
 PTE PT[entry_num];
 
-
+/*
+init_page:
+initial page directory entry for the first 4MB with kb form and second 4MB with MB form for kernel
+initial page table which contain vedio memory, and only initialize the entry contain vedio memory, it should locate at the first 4 mb PDE
+input: None
+output: None
+*/
 void init_page(void){
     int i=0;
     //fill first 4MB to be KB
@@ -65,11 +72,13 @@ void init_page(void){
             PT[i].p=0;
         }
     }
-    page_on2();
+    PAGE_ON();
 
 
 }
-void page_on2(){
+
+
+void PAGE_ON(){
     asm volatile(
 	"movl %0, %%eax             ;"
 	"movl %%eax, %%cr3          ;"
@@ -84,4 +93,6 @@ void page_on2(){
 
 	:  : "r"(PD): "eax" );
 }
+
+
 

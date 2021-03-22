@@ -10,13 +10,18 @@
 #define MASK 0xFF
 /*The linux file is in F:\ece391_share\work\source\linux-2.6.22.5\arch\ppc\syslib\i8259.c */
 
-
-
 /* Interrupt masks to determine which interrupts are enabled and disabled */
 uint8_t master_mask = MASK; /* IRQs 0-7  */
 uint8_t slave_mask = MASK;  /* IRQs 8-15 */
 
-/* Initialize the 8259 PIC */
+/* 
+ * i8259_init
+ *  DESCRIPTION: Mask all interrupts and exectute the initialize sequence of I8259.
+ *  INPUTS: none
+ *  OUTPUTS: none
+ *  RETURN VALUE: none
+ *  SIDE EFFECTS: Initialize the 8259 PIC.
+ */
 void i8259_init(void) {
     
     /* Mask all the things in 8259 */
@@ -43,7 +48,15 @@ void i8259_init(void) {
     enable_irq(SLAVE_IRQ_NUM);
 }
 
-/* Enable (unmask) the specified IRQ */
+
+/* 
+ * enable_irq
+ *  DESCRIPTION: tell i8259 to accept the interrup specified by irq_num
+ *  INPUTS: irq_num -- range from 0 - 15
+ *  OUTPUTS: none
+ *  RETURN VALUE: none
+ *  SIDE EFFECTS: Enable (unmask) the specified IRQ
+ */
 void enable_irq(uint32_t irq_num) {
     /*check the range of irq_num. If out of range just return */
     if((irq_num > IRQ_NUM_MAX) || (irq_num < IRQ_NUM_MIN)){
@@ -63,7 +76,14 @@ void enable_irq(uint32_t irq_num) {
     }
 }
 
-/* Disable (mask) the specified IRQ */
+/* 
+ * disable_irq
+ *  DESCRIPTION: tell i8259 to disable the interrup specified by irq_num
+ *  INPUTS: irq_num
+ *  OUTPUTS: none
+ *  RETURN VALUE: none
+ *  SIDE EFFECTS: Disable (mask) the specified IRQ
+ */
 void disable_irq(uint32_t irq_num) {
     /*check the range of irq_num. If out of range just return */
     if((irq_num > IRQ_NUM_MAX) || (irq_num < IRQ_NUM_MIN)){
@@ -83,8 +103,13 @@ void disable_irq(uint32_t irq_num) {
     }
 }
 
-
-/* Send end-of-interrupt signal for the specified IRQ */
+/* 
+ * send_eoi
+ *  DESCRIPTION: Send end-of-interrupt signal for the specified IRQ
+ *  INPUTS: irq_num -- range from 0 - 15
+ *  OUTPUTS: none
+ *  RETURN VALUE: none
+ */
 void send_eoi(uint32_t irq_num) {
     /*check the range of irq_num. If out of range just return */
     if((irq_num > IRQ_NUM_MAX) || (irq_num < IRQ_NUM_MIN)){
@@ -104,8 +129,6 @@ void send_eoi(uint32_t irq_num) {
 }
 
 /*Version 1 ZLH*/
-
-
 
 
 

@@ -34,10 +34,8 @@ continue:
 
     pushl %eax
     pushl %edx
-    pushl %ecx 
-    pushfl        /*save caller registers and 'return registers'*/
+    pushl %ecx        /*save caller registers and 'return registers'*/
     call init_idt /*init IDT and load it*/
-    popfl 
     popl %ecx 
     popl %edx
     popl %eax    /*return back*/

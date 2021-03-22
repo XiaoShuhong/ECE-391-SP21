@@ -9,7 +9,7 @@
 #define _X86_DESC_H
 
 #include "types.h"
-#include "page.h"
+
 
 /* Segment selector values */
 #define KERNEL_CS   0x0010

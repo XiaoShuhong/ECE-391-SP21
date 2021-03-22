@@ -68,9 +68,63 @@ int division_test(){
 /* Checkpoint 5 tests */
 
 
+
+
+
+int page_test(){
+	TEST_HEADER;
+	int i;
+	int result = PASS;
+
+	/* test margin of page -- should pass without page fault */
+	int val;
+	int* ptr = (int*)0x400000;	/* the margin of PD */
+	ptr[0] = 1;
+	val = ptr[0];
+
+	/* check the value of the entry of the tables */
+	// first, check whether the first two exist 
+	if (PD[0].k.p == 0 || PD[1].M.p == 0 ){
+		printf ("PDE 1 OR 0 NOT PRESENT\n");
+		result = FAIL;
+	}
+
+	// then, check whether the other not present and present at the video memory
+	for(i = 0; i < 1024; i++){				// 1024 is the entry number
+		if(PD[i].M.p == 1 && i > 1){
+			printf ("PDE wrongly PRESENT\n");
+			result = FAIL;
+		}
+		if(PT[i].p == 1 && i != 0xB8000 >> 12 ){		//  0xB8000 >> 12 is ithe index where the page table should present
+			printf ("PTE wrongly PRESENT\n");
+			result = FAIL;
+		}
+		if (PT[i].p == 0 && i == 0xB8000 >> 12){ 		// 0xB8000 >> 12 is ithe index where the page table should present
+			printf ("PTE no PRESENT\n");
+			result = FAIL;
+		} 
+	}
+	printf ("refresh\n");
+	return result;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* Test suite entry point */
 void launch_tests(){
 	// TEST_OUTPUT("idt_test", idt_test());
-     TEST_OUTPUT("division_test", division_test());
+    //  TEST_OUTPUT("division_test", division_test());
+    TEST_OUTPUT("page test", page_test());
+   
 	// launch your tests here
 }

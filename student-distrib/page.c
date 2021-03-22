@@ -3,6 +3,7 @@
 #include "page_assembly.h"
 #include "x86_desc.h"
 #include "page.h"
+void page_on2();
 PDE PD[entry_num];// __attribute__((aligned (four_k)));
 PTE PT[entry_num];
 
@@ -64,7 +65,23 @@ void init_page(void){
             PT[i].p=0;
         }
     }
-    page_on();
+    page_on2();
 
 
 }
+void page_on2(){
+    asm volatile(
+	"movl %0, %%eax             ;"
+	"movl %%eax, %%cr3          ;"
+
+	"movl %%cr4, %%eax          ;"
+	"orl $0x00000010, %%eax     ;"
+	"movl %%eax, %%cr4          ;"
+
+	"movl %%cr0, %%eax          ;"
+	"orl $0x80000000, %%eax     ;"
+	"movl %%eax, %%cr0          ;"
+
+	:  : "r"(PD): "eax" );
+}
+

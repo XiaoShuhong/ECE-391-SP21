@@ -12,6 +12,7 @@
 #include "rtc.h"
 #include "assembly.h"
 #include "keyboard.h"
+#include "page.h"
 // #include "idt.h"
 #define RUN_TESTS
 
@@ -147,6 +148,7 @@ void entry(unsigned long magic, unsigned long addr) {
     // init the rtc
     init_rtc();
     init_keyboard();
+    init_page();
     /*Version 1 LYC*/
 
     /* Initialize devices, memory, filesystem, enable device interrupts on the

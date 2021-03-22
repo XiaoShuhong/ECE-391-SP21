@@ -4,11 +4,12 @@
  */
 
 /*Version 1 XSH 2021/3/21 22:10*/
-
+/*Version 2 LYC 2021/3/22 17:29*/  /*small modification. No structure changes or features are added*/
 #ifndef _X86_DESC_H
 #define _X86_DESC_H
 
 #include "types.h"
+#include "page.h"
 
 /* Segment selector values */
 #define KERNEL_CS   0x0010
@@ -17,6 +18,10 @@
 #define USER_DS     0x002B
 #define KERNEL_TSS  0x0030
 #define KERNEL_LDT  0x0038
+
+
+
+
 
 /* Size of the task state segment (TSS) */
 #define TSS_SIZE    104
@@ -173,14 +178,13 @@ extern x86_desc_t idt_desc_ptr;
 
 /*Version 1 XSH*/
 #define four_k 4096
-extern PDE PD[entry_num];// __attribute__((aligned (four_k)));
-extern PTE PT[[entry_num]];
-typedef union PDE{// a union which for both 4K byte page table and 4M byte page, share the same memory
-    4k_PDE k;
-    4M_PDE M;
-}PDE;
+#define entry_num 1024
+#define shift_twelve 12
+#define video_memory 0xB8000
+
+
 // build a page directory entry to a 4k page table
-typedef union 4K_PDE{
+typedef union four_k_PDE{
     uint32_t val; // 32bit val, share same add with struct below it
     struct{
         uint32_t p :1;//bit 0 present
@@ -195,10 +199,12 @@ typedef union 4K_PDE{
         uint32_t avail :3;//bit 9-11 available for system programmer' user
         uint32_t ptb_add :20;//bit 12-31 page-table base address,most 20 bit
     } __attribute__ ((packed));
-}4k_PDE
+}four_k_PDE;
 
-//build a page directory entry for 4-MB pages
-typedef union 4M_PDE
+/*build a page directory entry for 4-MB pages*/
+
+
+typedef union four_M_PDE
 {
     uint32_t val;// 32bit val, share same add with struct below it
     struct{
@@ -219,7 +225,7 @@ typedef union 4M_PDE
 
     } __attribute__ ((packed));
 
-}4M_PDE
+}four_M_PDE;
   
 typedef union PTE
 {
@@ -242,6 +248,22 @@ typedef union PTE
 
     }__attribute__ ((packed));
 }PTE;
+
+
+
+typedef union PDE{// a union which for both 4K byte page table and 4M byte page, share the same memory
+    four_k_PDE k;
+    four_M_PDE M;
+}PDE;
+
+
+
+extern PDE PD[entry_num];// __attribute__((aligned (four_k)));
+extern PTE PT[entry_num];
+
+
+
+
 /*Version 1 XSH*/
 
 
@@ -293,6 +315,9 @@ do {                                    \
             : "memory"                  \
     );                                  \
 } while (0)
+
+
+
 
 #endif /* ASM */
 

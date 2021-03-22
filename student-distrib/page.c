@@ -1,5 +1,10 @@
-#include "page_assembly.h"
+/*Version 1 XSH 2021/3/21 22:10*/
 
+#include "page_assembly.h"
+#include "x86_desc.h"
+#include "page.h"
+PDE PD[entry_num];// __attribute__((aligned (four_k)));
+PTE PT[entry_num];
 
 
 void init_page(void){
@@ -26,7 +31,7 @@ void init_page(void){
     PD[1].M.pcd=0;// make page table to be cached
     PD[1].M.a=0; //initially set to 0, wait user to visit for first time
     PD[1].M.d=0; //clear when point to directory table
-    PD[1].M.ps=1// set for page size 4M
+    PD[1].M.ps=1;// set for page size 4M
     PD[1].M.g=1;//frequently use, global page
     PD[1].M.avail=0;//all 32 bits are available to software
     PD[1].M.pat=0; //set 0 fro processor not support
@@ -53,7 +58,7 @@ void init_page(void){
             PT[i].pat=0;//set 0 fro processor not support
             PT[i].g=0;//frequently use, global page
             PT[i].avail=0;//all 32 bits are available to software
-            PD[i].ptb_add=video_memory>>shift_twelve;
+            PT[i].ptb_add=video_memory>>shift_twelve;
         }
         else{
             PT[i].p=0;

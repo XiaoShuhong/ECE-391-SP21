@@ -1,0 +1,31 @@
+/* BUG LOG for CheckPoint 1 */
+
+ML
+BUG 1 2021/3/20 18:53
+file: idt.c
+description: The exception handler cannot be called when the error happen (division error).
+sol1: forget to set the idt[i].present to 1, set and try again. // fixed
+
+ML
+BUG 2 2021/3/21 10:28
+file: keyboard.c
+description: The keyboard handler will be broken when two keys are pressed at the same time.
+sol1: try to find error but I think everything is right.
+sol2: think why it will happen --> cannot find the ascii value --> two keys will lead to a new scan code.
+sol3: add assembly, and the bug is fixed. why?
+sol4: the assembly code increase the time between two scan codes are sent to the OS, the new scan code will not generate. // fixed
+
+
+
+BUG 3 2021/3/21 12:42
+file: page.c
+description: can‘t turn on the page mechanism.
+sol1: in the assembly code, we forget to add $ to a digit. without $,Complier will conisder it as a address
+
+BUG 4 2021/3/21 12:42
+file: boot.S
+description: we can only enable the keyboard interrupt under the condition that we enable the RTC interrupt. Without RTC, ketboard will not work properly.
+sol1: We push EFLAG before call init_IDT and restore EFALG after that. In this case, we will still have IF=0 even we have called the init_IDT. Since IF=0, no interrupts will occur.
+Just delete the "pushfl".
+
+

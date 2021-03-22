@@ -96,11 +96,11 @@ int division_test(){
  * Files: x86_desc.h/S, idt.c
  * 
  */
-void test_any_excp(){
+int test_any_excp(){
 	/* change the following vector between 0-19(0x00-0x13) */ 
 	/* to test each corresponding exception handlers */
 	asm("int $0x08");
-	return PASS
+	return PASS;
 }
 
 /* test_i8259_disable_irq_garbage
@@ -110,12 +110,12 @@ void test_any_excp(){
  * Coverage: garbage input to disable_irq
  * Files: i8259.c
  */
-void test_i8259_disable_irq_garbage(){
+int test_i8259_disable_irq_garbage(){
 	/*send a invalid irq_num to disable_irq, nothing should happen*/
 	/*The interrupt from keyboard and rtc should still be aceepted*/
 	disable_irq(19);
 	disable_irq(1234);
-	return PASS
+	return PASS;
 }
 
 
@@ -126,11 +126,11 @@ void test_i8259_disable_irq_garbage(){
  * Coverage: disable_irq
  * Files: i8259.c
  */
-void test_i8259_disable_irq(){
+int test_i8259_disable_irq(){
 	/*send irq_num of keyboard and rtc and check whether it is masked*/
 	disable_irq(rtc_irq_number);
 	disable_irq(KEYBOARD_IRQ);
-	return PASS
+	return PASS;
 }
 
 /* test_i8259_enable_irq_garbage
@@ -140,11 +140,11 @@ void test_i8259_disable_irq(){
  * Coverage: garbage input to enable_irq
  * Files: i8259.c
  */
-void test_i8259_enable_irq_garbage(){
+int test_i8259_enable_irq_garbage(){
 	/*send garbage input to enable_irq nothing should happend*/
 	enable_irq(19);
 	enable_irq(1234);
-	return PASS
+	return PASS;
 }
 
 /* test_i8259_enable_irq
@@ -154,10 +154,11 @@ void test_i8259_enable_irq_garbage(){
  * Coverage: enable_irq
  * Files: i8259.c
  */
-void test_i8259_enable_irq(){
+int test_i8259_enable_irq(){
 	/*it should enable the interrupt from the keyboard and rtc after disable_irq is called*/
 	enable_irq(rtc_irq_number);
 	enable_irq(KEYBOARD_IRQ);
+	return PASS;
 }
 
 
@@ -207,21 +208,31 @@ int page_test(){
 
 
 
-/* Checkpoint 2 tests */
-/* Checkpoint 3 tests */
-/* Checkpoint 4 tests */
-/* Checkpoint 5 tests */
+
 
 
 /* Test suite entry point */
 void launch_tests(){
-	//TEST_OUTPUT("idt_test", idt_test());
-    // TEST_OUTPUT("division_test", division_test());
-	// test_one_excp();
-	// test_i8259_disable_irq_garbage();
-	//test_i8259_disable_irq();
-	// test_i8259_enable_irq_garbage();
-	// test_i8259_enable_irq()
-    //TEST_OUTPUT("page test", page_test());
+	
+	// TEST_OUTPUT("idt_test", idt_test());
+    
+	// TEST_OUTPUT("disable_rtc_and_keyboard",test_i8259_disable_irq());
+
+	// TEST_OUTPUT("enable_rtc_and_keyboard",test_i8259_enable_irq());
+
+	// TEST_OUTPUT("division_test", division_test());
+
+	// TEST_OUTPUT("any exception",test_one_excp());
+	
+	// TEST_OUTPUT("disable_garbage",test_i8259_disable_irq_garbage());
+	
+	// TEST_OUTPUT("enable_garbage",test_i8259_enable_irq_garbage());
+    
+	// TEST_OUTPUT("page test", page_test());
+
+/* Checkpoint 2 tests */
+/* Checkpoint 3 tests */
+/* Checkpoint 4 tests */
+/* Checkpoint 5 tests */
 
 }

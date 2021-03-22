@@ -58,28 +58,8 @@ void init_rtc(){
  */
 void __rtc_interrupt_handler__(){
     cli();
-
-
-    // static int rotate=0;
-    // int32_t i;
-    // for (i = 0; i < NUM_ROWS * NUM_COLS; i++) {
-    //     if(rotate!=0){
-    //         *(uint8_t *)(video_mem + (i << 1))= *(uint8_t *)(video_mem + (i << 1))   +1 ;
-    //         *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;            
-    //     }
-    //     else{
-    //         *(uint8_t *)(video_mem + (i << 1))= *(uint8_t *)(video_mem + (i << 1))   -1 ;
-    //         *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB; 
-
-    //     }
-
-    // }
-    // rotate=~rotate;
-
-
-
     
-    test_interrupts();
+    // test_interrupts();
 
 
 

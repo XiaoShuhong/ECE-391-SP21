@@ -13,6 +13,7 @@
 #include "assembly.h"
 #include "keyboard.h"
 #include "page.h"
+#include "systemfile.h"
 // #include "idt.h"
 #define RUN_TESTS
 
@@ -32,6 +33,7 @@
  *  RETURN VALUE: none
  *  SIDE EFFECTS: start the whole system
  */
+boot_block* sysfile_mem_start;
 void entry(unsigned long magic, unsigned long addr) {
 
     multiboot_info_t *mbi;
@@ -67,6 +69,7 @@ void entry(unsigned long magic, unsigned long addr) {
         int mod_count = 0;
         int i;
         module_t* mod = (module_t*)mbi->mods_addr;
+        sysfile_mem_start=(boot_block*) mod->mod_start;
         while (mod_count < mbi->mods_count) {
             printf("Module %d loaded at address: 0x%#x\n", mod_count, (unsigned int)mod->mod_start);
             printf("Module %d ends at address: 0x%#x\n", mod_count, (unsigned int)mod->mod_end);

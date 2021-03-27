@@ -8,6 +8,10 @@
 #define MAX_DENTRY 63
 #define MAX_DATA_BLOCK_NUM 1023
 #define BLOCK_SIZE 4096
+#define MAX_FILE_NAME_LEN 32
+#define FAIL -1
+
+
 
 typedef struct dentry
 {
@@ -39,7 +43,19 @@ typedef struct single_data_block{
 extern boot_block* sysfile_mem_start;
 
 
-
+uint32_t init_sysfile(void);
+int32_t sysfile_open(const uint8_t* filename);
+int32_t sysfile_close(int32_t fd);
+int32_t sysfile_write(int32_t fd, const void* buf, int32_t nbytes);
+int32_t sysfile_read(int32_t fd, uint32_t offset, void* buf,uint32_t length);
+int32_t read_dentry_by_name(const uint8_t* fname, dentry* tar_dentry);
+void __create_buffer__( uint8_t* const fname_buffer, uint8_t* const cur_filename_buffer,uint8_t* const fname,uint8_t* const cur_filename );
+int32_t read_dentry_by_index(uint32_t index, dentry* tar_dentry);
+int32_t read_data(uint32_t inode_idx, uint32_t offset, uint8_t* buf , uint32_t length);
+int32_t sysdir_read(int32_t fd, uint32_t offset, void* buf, int32_t nbytes);
+int32_t sysdir_open(const uint8_t* filename);
+int32_t sysdir_close(int32_t fd);
+int32_t sysdir_write(int32_t fd, const void* buf, int32_t nbytes);
 
 
 

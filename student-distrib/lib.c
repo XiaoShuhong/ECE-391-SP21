@@ -3,6 +3,7 @@
 
 /*Version 1 :ZLH 2021/3/21 22:00*/
 
+
 #include "lib.h"
 
 #define VIDEO       0xB8000
@@ -513,7 +514,5 @@ void scroll_up(void){
     }
 /*Version 1 ZLH*/
 }
-
-
 
 

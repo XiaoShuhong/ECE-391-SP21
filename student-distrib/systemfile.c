@@ -1,5 +1,5 @@
 #include "systemfile.h"
-#include "lib.c"
+#include "lib.h"
 
 inode* inode_men_start;
 single_data_block* data_block_men_start;
@@ -15,7 +15,13 @@ uint32_t init_sysfile(void){
 
 int32_t sysfile_open(const uint8_t* filename)
 {
-
+    dentry buffer;
+    int32_t is_name_vaild=read_dentry_by_name(filename,&buffer);
+   
+    if(is_name_vaild==FAIL ||  buffer.filetype!=2){//2 represent the regular file.
+        return FAIL;
+    }
+        
     return 0;
 }
 
@@ -45,24 +51,24 @@ int32_t sysfile_read(int32_t fd, uint32_t offset, void* buf,uint32_t length){
 
 
 int32_t read_dentry_by_name(const uint8_t* fname, dentry* tar_dentry){
-    int length,dentry_num;
+    uint32_t length,dentry_num;
     int i,j;
     int is_match;
     int matched_index=-1;//-1 means we haven't find matched dentry
     uint8_t fname_buffer[33],cur_filename_buffer[33];
     dentry cur_entry;
     uint8_t* cur_filename;
-    length=strlen(fname);
+    length=strlen((const int8_t*)fname);
     dentry_num=sysfile_mem_start->dir_count;//number of dentry  
     
     
     //if length of input filename is larger than filename buffer, return fail
-    if (length>MAX_FILE_NAME_LEN || tar_dentry==NULL){
+    if (tar_dentry==NULL){//|| length>MAX_FILE_NAME_LEN
         return FAIL;
     }
 
     //this loop itrates dentrys
-    for(i=0;i<tar_dentry;i++){
+    for(i=0;i<dentry_num;i++){
         cur_entry=sysfile_mem_start->direntries[i];
         cur_filename=cur_entry.filename;//cur_filename is the current dentry's name. used to compare the fname.
         __create_buffer__(fname_buffer, cur_filename_buffer,fname, cur_filename );
@@ -77,9 +83,9 @@ int32_t read_dentry_by_name(const uint8_t* fname, dentry* tar_dentry){
                 break;
             }
         }
-
-
-
+        if(is_match==1){ //meaning we matches!
+            break;
+        }
     }
 
     //if matched, fill dentry
@@ -94,7 +100,7 @@ int32_t read_dentry_by_name(const uint8_t* fname, dentry* tar_dentry){
 }
 
 
-void __create_buffer__( uint8_t* const fname_buffer, uint8_t* const cur_filename_buffer,uint8_t* const fname,uint8_t* const cur_filename ){
+void __create_buffer__( uint8_t*  fname_buffer, uint8_t*  cur_filename_buffer,const uint8_t *  fname,uint8_t*  cur_filename ){
     int i;//index
     int fname_end=0;
     int cur_filename_end=0;
@@ -107,6 +113,8 @@ void __create_buffer__( uint8_t* const fname_buffer, uint8_t* const cur_filename
         else
             fname_buffer[i]='\0';
     }
+    fname_buffer[32]='\0';//last char must be '\0', 32 is the last index of the buffer.
+
 
 
     for(i=0;i<(MAX_FILE_NAME_LEN+1);i++){
@@ -114,7 +122,7 @@ void __create_buffer__( uint8_t* const fname_buffer, uint8_t* const cur_filename
             cur_filename_end=1;
         }
         if(cur_filename_end==0)
-            cur_filename_buffer[i]=cur_filename_buffer[i];
+            cur_filename_buffer[i]=cur_filename[i];
         else
             cur_filename_buffer[i]='\0';
     }
@@ -146,6 +154,7 @@ int32_t read_data(uint32_t inode_idx, uint32_t offset, uint8_t* buf , uint32_t l
     int start_data_block_index,end_data_block_index;
     single_data_block* start_data_block;
     single_data_block* end_data_block;
+    uint32_t start_data_block_add,end_data_block_add;
     if(sysfile_mem_start->inode_count<=inode_idx){
         return FAIL;
     }
@@ -154,34 +163,46 @@ int32_t read_data(uint32_t inode_idx, uint32_t offset, uint8_t* buf , uint32_t l
         return 0;
     }
     if(offset+length>tar_node->length){
-        end =tar_node->length;
+        end =tar_node->length-1;
     }
     else {
         end=offset+length;
     }
+
+
     start_data_block_index=tar_node->data_block_num[offset/BLOCK_SIZE];
     end_data_block_index=tar_node->data_block_num[end/BLOCK_SIZE];
     start_data_block = &data_block_men_start[start_data_block_index];
     end_data_block = &data_block_men_start[end_data_block_index];
     start_block_off=offset%BLOCK_SIZE;
 
-    memcpy(buf,((uint32_t)start_data_block) +start_block_off,BLOCK_SIZE-start_block_off);
+    start_data_block_add=(uint32_t)&(tar_node->data_block_num[offset/BLOCK_SIZE]);
+    end_data_block_add=(uint32_t)&(tar_node->data_block_num[end/BLOCK_SIZE]);
+
+    memcpy((void*)buf,(const void*)(((uint32_t)start_data_block) +start_block_off),BLOCK_SIZE-start_block_off);
     num_read+=BLOCK_SIZE-start_block_off;
-    if (end_data_block_index==start_data_block_index){
+    if (start_data_block_add==end_data_block_add){
         return num_read;
     }
-    if((end_data_block_index-start_data_block_index)==1){
-        memcpy(((uint32_t)buf)+num_read,end_data_block,length-num_read);
+    if((end_data_block_add-start_data_block_add)==sizeof(start_data_block_add)){
+        memcpy((void*)(((uint32_t)buf)+num_read),(const void*)end_data_block,length-num_read);
         num_read+=length-num_read;
         return num_read;
     }
     else{
-        num_full_block=end_data_block_index-start_data_block_index-1;
+        num_full_block=(end_data_block_add-start_data_block_add)/sizeof(start_data_block_add)-1;
         for(i=0;i<num_full_block;i++){
-            memcpy(((uint32_t)buf)+num_read,&data_block_men_start[start_data_block_index+i],BLOCK_SIZE);
+            
+            
+            memcpy(
+                    (void*)         (((uint32_t)buf)+num_read),
+                    (const void*)   (&data_block_men_start[(uint32_t)*(uint32_t*)(start_data_block_add+(i+1)*sizeof(start_data_block_add))]),
+                    ( uint32_t )    BLOCK_SIZE
+                    );
+                                                                    
             num_read+=BLOCK_SIZE;
         }
-        memcpy(((uint32_t)buf)+num_read,end_data_block,length-num_read);
+        memcpy((void*)(((uint32_t)buf)+num_read),(const void*)end_data_block,length-num_read);
         num_read+=length-num_read;
         return num_read;
 
@@ -192,16 +213,17 @@ int32_t read_data(uint32_t inode_idx, uint32_t offset, uint8_t* buf , uint32_t l
 
 
 int32_t sysdir_read(int32_t fd, uint32_t offset, void* buf, int32_t nbytes){
-    dentry* tar_dentry;
+    dentry tar_dentry;
     int i;
-	if(read_dentry_by_index(offset, tar_dentry) == -1){
+    int return_val=read_dentry_by_index(offset, &tar_dentry);
+	if(return_val== -1){
 		return FAIL;
 	}
     for (i = 0; i < 33; i++){
         ((int8_t*)(buf))[i] = '\0';
     }
 
-    strncpy((int8_t*)buf, (const int8_t*)tar_dentry->filename,strlen((int8_t*)tar_dentry->filename));
+    strncpy((int8_t*)buf, (const int8_t*)tar_dentry.filename,strlen((int8_t*)tar_dentry.filename));
     return 0;
 
 

@@ -162,6 +162,7 @@ void entry(unsigned long magic, unsigned long addr) {
     init_rtc();
     init_keyboard();
     init_page();
+    init_sysfile();
     /*Version 1 LYC*/
 
     /* Initialize devices, memory, filesystem, enable device interrupts on the

@@ -6,7 +6,7 @@
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
 
-
+#include "systemfile.h"
 #include "tests.h"
 #include "x86_desc.h"
 #include "lib.h"
@@ -15,7 +15,7 @@
 #include "rtc.h"
 
 #define PASS 1
-#define FAIL 0
+// #define FAIL 0
 #define KEYBOARD_IRQ 1
 
 /* format these macros as you see fit */
@@ -210,6 +210,167 @@ int page_test(){
 
 
 
+int read_dentry_by_index_and_read_data_test(){
+	clear();
+	dentry dentry_buffer;
+	int32_t is_fail;
+	uint32_t size=10000; 
+	uint8_t buf[size];
+	int32_t num_read;
+	int i;
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//test function:read_dentry_by_index
+	is_fail = read_dentry_by_index(10, &dentry_buffer);// index 1 is: sigtest
+	if(is_fail == -1){
+		return FAIL;
+	}
+	printf("File name: ");
+	for(i=0; i<FILENAME_LEN; i++){ //filename may not have '\0'. DO NOT USE puts.
+		putc(dentry_buffer.filename[i]);
+	}
+	printf("\n");
+	printf("File type: %d\n", dentry_buffer.filetype);
+	printf("Inode #: %d\n", dentry_buffer.inode_num);
+	printf("\nend of read_dentry_by_index test\n");
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//test function：read_data. print the content of the file
+	num_read = read_data(dentry_buffer.inode_num, 0, buf, size);
+	// printf("File size: %d\n", (int32_t)num_read);
+	if(num_read>4096){//file too large. 
+		printf("print first 500 chars:\n");
+		for(i=0; i<500; i++){
+			putc(buf[i]);
+		}		
+	}
+	else{
+		for(i=0; i<num_read; i++){
+			putc(buf[i]);
+		}	
+	}
+
+	printf("\nend of read_data\n");
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	return PASS;
+}
+
+
+
+
+/* 
+
+ *Filesystem test 
+ * 
+ * Description: test all function related to Filesystem, if any of them fails, will return FAIL.
+ * Inputs: NONE
+ * Outputs: None
+ * Side Effects: PASS for success, FAIL for failure
+ * Files: filesys.c/filesys.h
+ */
+int read_dentry_by_name_and_read_data_test(){
+	clear();
+	dentry dentry_buffer;
+	int32_t is_fail;
+	uint32_t size=10000; 
+	uint8_t buf[size];
+	int32_t num_read;
+	int i;//used as index
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//test function：read_dentry_by_name. print dentry.
+	is_fail = read_dentry_by_name((uint8_t*)"frame0.txt", &dentry_buffer);	
+	/*
+	LIST:  
+		"frame0.txt"
+		"verylargetextwithverylongname.txt"
+	
+	
+	*/
+	if(is_fail == -1){
+		return FAIL;
+	}
+	
+	printf("File name: ");
+	for(i=0; i<FILENAME_LEN; i++){ //filename may not have '\0'. DO NOT USE puts.
+		putc(dentry_buffer.filename[i]);
+	}
+	printf("\n");
+	printf("File type: %d\n", dentry_buffer.filetype);
+	printf("Inode #: %d\n", dentry_buffer.inode_num);
+	printf("\nend of read_dentry_by_name test\n");
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//test function：read_data. print the content of the file
+	num_read = read_data(dentry_buffer.inode_num, 0, buf, size);
+	// printf("File size: %d\n", (int32_t)num_read);
+	if(num_read>4096){//file too large. 
+		printf("print first 500 chars:\n");
+		for(i=0; i<500; i++){
+			putc(buf[i]);
+		}		
+	}
+	else{
+		for(i=0; i<num_read; i++){
+			putc(buf[i]);
+		}	
+	}
+
+	printf("\nend of read_data\n");
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+return PASS;
+}
+
+
+
+
+
+int list_all_files(){
+
+
+
+	clear();
+	int32_t fd=0;//we do not use fd for cp2.
+	int32_t nbytes=0;//we do not need nbytes for sysdir_read.
+	int offset;//offset of dentry
+	int i;//index
+	uint8_t name_buffer[FILENAME_LEN+1];
+
+
+	dentry dentry_buffer;
+	int32_t is_fail;
+
+
+	for(offset=0;offset<17;offset++){//we have 17 files.
+		sysdir_read( fd,  offset, name_buffer,  nbytes);
+		printf("File name:");
+		for(i=0; i<FILENAME_LEN; i++){ //filename may not have '\0'. DO NOT USE puts.
+			putc(name_buffer[i]);
+		}
+
+
+		is_fail = read_dentry_by_index(offset, &dentry_buffer);// index 1 is: sigtest
+		if(is_fail == -1){
+			return FAIL;
+		}
+		printf("Filet ype:%d ", dentry_buffer.filetype);
+		printf("  File size:%d ", (inode*)(inode_men_start+dentry_buffer.inode_num)->length);
+		printf("\n");
+	
+
+	}
+	
+	return PASS;
+}
+
+
 
 /* Test suite entry point */
 void launch_tests(){
@@ -230,6 +391,9 @@ void launch_tests(){
     
 	// TEST_OUTPUT("page test", page_test());
 
+	// TEST_OUTPUT("file system test0",read_dentry_by_name_and_read_data_test());
+	// TEST_OUTPUT("file system test1",read_dentry_by_index_and_read_data_test());
+	TEST_OUTPUT("list all files",list_all_files());
 /* Checkpoint 2 tests */
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */

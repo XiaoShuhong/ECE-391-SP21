@@ -1,10 +1,11 @@
 /*Version 1 :LYC 2021/3/21 13:47*/
+/*Version 2 :ML 2021/3/28 9:10*/
 
 /*Version 1 LYC*/
 #ifndef RTC__
 #define RTC__
 
-
+#include    "types.h"
 
 #define RTC_register_number_port 0x70
 #define RTC_register_W_R_port    0x71
@@ -15,9 +16,25 @@
 #define rtc_irq_number           8
 #define RTC_register_C_with_out_disable_NMI 0x0C
 
+/*Version 2 ML*/
+#define SUCCESS                  0
+#define NOT_SUCCESS              -1
+#define RTC_RAM                  0x20
+#define TWO_POWER_FIFTEEN        32768
+#define THE_F                    0x0F
+#define REVERSE_F                0xF0
+#define two_HZ                   2
+
+
 void init_rtc();
 void __rtc_interrupt_handler__();
-
+int32_t freq_2_rate(uint32_t freq);
+void set_rtc_rate(uint32_t rate);
+int32_t rtc_open(const uint8_t* filename);
+int32_t rtc_close(int32_t fd);
+int32_t rtc_read(int32_t fd, void* buf, int32_t nbytes);
+int32_t rtc_write(int32_t fd, const void* buf, int32_t nbytes);
+/*Version 2 ML*/
 
 #endif
 /*Version 1 LYC*/

@@ -505,7 +505,7 @@ void launch_tests(){
     
 	// TEST_OUTPUT("page test", page_test());
 
-	TEST_OUTPUT("file system test0",read_dentry_by_name_and_read_data_test());
+	// TEST_OUTPUT("file system test0",read_dentry_by_name_and_read_data_test());
 	//TEST_OUTPUT("file system test1",read_dentry_by_index_and_read_data_test());
 	//TEST_OUTPUT("list all files",list_all_files());
 	//TEST_OUTPUT("test file read",test_file_read());
@@ -517,7 +517,7 @@ void launch_tests(){
 
 
 	// rtc_freq_test();
-	terminal_test();
+	// terminal_test();
 
 
 

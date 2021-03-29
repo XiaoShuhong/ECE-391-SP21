@@ -172,7 +172,7 @@ keyboard_handler(void){
         }
     /*Version 4 ZLH*/
 
-        if((buffer_index == 128) && (keyprinted != '\n')){
+        if((buffer_index == 127) && (keyprinted != '\n')){
             return;
         }
     /*Version 4 ZLH*/

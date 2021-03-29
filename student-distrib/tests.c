@@ -1,7 +1,6 @@
 
 
 
-/* Checkpoint 2 tests */
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
@@ -206,9 +205,41 @@ int page_test(){
 
 
 
+/* Checkpoint 2 tests */
+/* rtc_freq_test
+ * Inputs: None
+ * Outputs: This test should change the freq of the rtc and print "1" on the screen at different freqs
+ * Side Effects: Change the freq of the rtc
+ * Files: rtc.c
+ */
+void rtc_freq_test(){
+	int i; //loop index
+	int freq = 2;
+	int fd = rtc_open(NULL);
+	for (freq=2; freq<1024; freq*=2){
+		clear();
+		printf("freq changes! freq is: %d \n", freq);
+		rtc_write(fd,(void *)freq,4);
+		for(i=0; i<freq+1; i++){
+			rtc_read(fd,(void *)freq,4);
+			printf("1");
+		}
+	}
+}
 
-
-
+int terminal_test()
+{
+	TEST_HEADER;
+	uint8_t buf[128];
+	int32_t num_char;
+	while(1){
+		terminal_write(1, (uint8_t *)"Hi, what's your name? ", 22);
+		num_char = terminal_read(0, buf, 128);
+		terminal_write(1, (uint8_t *)"Hello, ", 7);
+		terminal_write(1, buf, num_char);
+	}
+	return PASS;
+}
 
 
 /* Test suite entry point */
@@ -230,6 +261,12 @@ void launch_tests(){
     
 	// TEST_OUTPUT("page test", page_test());
 
+	// rtc_freq_test();
+	terminal_test();
+
+
+
+	
 /* Checkpoint 2 tests */
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */

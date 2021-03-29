@@ -2,28 +2,64 @@
  * vim:ts=4 noexpandtab */
 
 /*Version 1 :ZLH 2021/3/21 22:00*/
+/*Version 2 :ML 2021/3/28 20:04*/
+/*Version 3 :ZLH 2021/3/29 12:00*/
 
 #include "lib.h"
+#include "types.h"
 
 #define VIDEO       0xB8000
 #define NUM_COLS    80
 #define NUM_ROWS    25
 #define ATTRIB      0x7
 
+#define THE_EIGHT   8
+
 static int screen_x;
 static int screen_y;
 static char* video_mem = (char *)VIDEO;
 
+/*Version 2 ML*/
+/* void update_cursor(void);
+ * Inputs: int x: the x position of the cursor which we want to update
+ *         int y: the y position of the cursor which we want to update
+ * Return Value: none
+ * Function: Updates the cursor location */
+void 
+update_cursor(int32_t x, int32_t y){
+
+/* this is the linux code from https://wiki.osdev.org/Text_Mode_Cursor
+void update_cursor(int x, int y){
+	uint16_t pos = y * VGA_WIDTH + x;
+ 
+	outb(0x3D4, 0x0F);
+	outb(0x3D5, (uint8_t) (pos & 0xFF));
+	outb(0x3D4, 0x0E);
+	outb(0x3D5, (uint8_t) ((pos >> 8) & 0xFF));
+}*/
+    uint16_t pos = y * NUM_COLS + x;
+    outb(0x0F, 0x3D4);
+    outb((uint8_t) (pos & 0xFF), 0x3D5);
+    outb(0x0E, 0x3D4);
+    outb((uint8_t) ((pos >> THE_EIGHT) & 0xFF), 0x3D5);
+}
+/*Version 2 ML*/
+
 /* void clear(void);
  * Inputs: void
  * Return Value: none
- * Function: Clears video memory */
+ * Function: Clears video memory and set the cursor to the (0,0) location */
 void clear(void) {
     int32_t i;
     for (i = 0; i < NUM_ROWS * NUM_COLS; i++) {
         *(uint8_t *)(video_mem + (i << 1)) = ' ';
         *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
     }
+    /*Version 2 ML*/
+    screen_x = 0;
+    screen_y = 0;
+    update_cursor(screen_x, screen_y);
+    /*Version 2 ML*/
 }
 
 /* Standard printf().
@@ -177,16 +213,51 @@ void putc(uint8_t c) {
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = c;
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
         screen_x++;
+        /*Version 3 ZLH*/
+        if(screen_x == NUM_COLS){
+            screen_y++;
+        }
         screen_x %= NUM_COLS;
-        screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+        /*Version 3 ZLH*/
+
+        // screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
     }
+
 /*Version 1 ZLH*/
 //check if the screen is full
     if((screen_y) == NUM_ROWS){
         scroll_up();
     }
+
+    /*Version 2 ML*/
+    update_cursor(screen_x, screen_y);
+    /*Version 2 ML*/
 }
 /*Version 1 ZLH*/
+
+
+
+
+
+void backspace(void){
+    if(screen_x == 0){
+        if(screen_y == 0){
+            return;
+        }
+        screen_y--;
+        screen_x = NUM_COLS - 1;
+        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = ' ';
+        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
+         update_cursor(screen_x, screen_y);
+        return;
+    }
+
+    screen_x--;
+    *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = ' ';
+    *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
+    update_cursor(screen_x, screen_y);
+    return;
+}
 
 /* int8_t* itoa(uint32_t value, int8_t* buf, int32_t radix);
  * Inputs: uint32_t value = number to convert

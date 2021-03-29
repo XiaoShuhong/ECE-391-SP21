@@ -1,6 +1,9 @@
 /*keyboard.c used to init keyboard device*/
 /*Version 1 ML 2021/3/21 10:28*/
 /*Version 2 ML 2021/3/22 20:01 add function header and comments*/
+/*Version 3 ML 2021/3/27 16:22*/
+/*Version 4 ZLH 2021/3/29 20:56*/
+
 
 /*Version 1 ML*/
 /*Version 2 ML*/
@@ -8,6 +11,8 @@
 #include "lib.h"
 #include "i8259.h"
 #include "keyboard.h"
+#include "types.h"
+#include "terminal.h"
 
 
 #define KEYBOARD_IRQ 1
@@ -16,6 +21,20 @@
 #define SCANCODESIZE 58
 #define SINGLECOMMA  39
 #define DOUBLECOMMA  34
+#define LOW_EIGHT_BITS 0xFF
+
+#define LEFT_SHIFT_PRESSED 0x2A
+#define RIGHT_SHIFT_PRESSED 0x36
+#define LEFT_SHIFT_RELEASED 0xAA
+#define RIGHT_SHIFT_RELEASED 0xB6
+#define LEFT_CTRL_PRESSED 0x1D
+#define LEFT_CTRL_RELEASED 0x9D
+#define CAPSLOCK_PRESSED 0x3A
+#define CAPSLOCK_RELEASED 0xBA
+#define ALT_PRESSED 0x38
+#define ALT_RELEASED 0xB8
+#define ESC 0x01
+#define TAB_PRESSED 0x0F
 
 unsigned char key2ascii_map[SCANCODESIZE][2] = {
     {0x0, 0x0}, // 0x00 not use
@@ -83,6 +102,19 @@ unsigned char key2ascii_map[SCANCODESIZE][2] = {
 
 };
 
+/*Version 3 ML*/
+/* Define the buffers to detect whether the special scancode is inputted */
+/* 0 is unpressed, 1 is pressed*/
+uint8_t Ctrl_Buffer = 0;
+uint8_t Shift_Buffer = 0;
+uint8_t CapsLock_Buffer = 0;
+uint8_t Backspace_Buffer = 0;
+/* Define the state buffer to record the state of CapsLock */
+/* 0 is lowercases, 1 is capitals*/
+uint8_t CapsLock_state = 0;
+
+/*Version 3 ML*/
+
 /* init_keyboard()
  * 
  * This function is used init the keyboard device
@@ -104,15 +136,142 @@ init_keyboard(void){
  * Outputs: None
  * Side Effects: Send the scan code which sent by the keyboard device to our video memory to show it on the screen
  */
+/*Version 3 ML*/
 void
 keyboard_handler(void){
     cli();
-    uint8_t scan_code = inb(KEYBOARD_PORT_DATA);
-    if (scan_code < SCANCODESIZE && scan_code > 0x01){
-        putc(key2ascii_map[scan_code][0]);
+    send_eoi(KEYBOARD_IRQ); // send the signal of end_of_interrupt. This instruction must be here!!! Otherwise the eoi signal will not be sent, other interrupts will not be allowed to happen
+    uint8_t scan_code = inb(KEYBOARD_PORT_DATA) & LOW_EIGHT_BITS;
+    uint8_t keyprinted = key2ascii_map[scan_code][0]; // get the key which we want to printed, init to the lowercase
+
+    /* for the special scancode, return */
+    if (special_scancode_handler(scan_code) == 1) {
+        sti();
+        return; 
     }
-    send_eoi(KEYBOARD_IRQ); // send the signal of end_of_interrupt
+
+    /*Version 4 ZLH*/
+    if (scan_code < SCANCODESIZE && scan_code > 0x01){
+     /* handle the CTRL+L, clear the screen */
+        if (Ctrl_Buffer == 1){
+            if (keyprinted == 'l'){
+                clear();
+                sti();
+                return;
+            }
+        }
+
+        if (keyprinted == '\b'){
+            if(buffer_index == 0){
+                return;
+            }
+            buffer_index--;
+            line_buffer[buffer_index] = '\0'; 
+            backspace();
+            return;
+        }
+    /*Version 4 ZLH*/
+
+        if((buffer_index == 128) && (keyprinted != '\n')){
+            return;
+        }
+    /*Version 4 ZLH*/
+        if(keyprinted == '\n'){
+            putc(keyprinted);
+            add_buffer(keyprinted);
+            if(terminal_read_flag == 0){ //This is used to solve the problem of terminal read when pressing enter
+                clear_buffer();
+            }
+    /*Version 4 ZLH*/
+            return;
+        }
+
+        /* handle the not special keys */
+        if (keyprinted >= 'a' && keyprinted <= 'z'){ // for the letters
+            if (CapsLock_state != Shift_Buffer){ // the case to print the capitals
+                keyprinted = key2ascii_map[scan_code][1];
+            }
+        }
+        else{
+            if (Shift_Buffer == 1){
+               keyprinted = key2ascii_map[scan_code][1]; 
+            }
+        }
+        add_buffer(keyprinted);
+        putc(keyprinted);
+     // use to test
+    }
+    /*After these operations, we will get the correct printed key, what should we do next?*/
+    // your code here...
     sti();
 }
+
+
+
+/* special_scancode_handler()
+ * 
+ * This function is used as the handler to handle the special scancode
+ * Inputs: scan_code: got from the keyboard
+ * Outputs: 1 for success, 0 for fail
+ * Side Effects: Change the special key buffers
+ */
+int32_t special_scancode_handler(uint8_t scan_code){
+    switch(scan_code){
+        /* Shift pressed, change the ShiftBuffer to 1 */
+        case LEFT_SHIFT_PRESSED:
+            Shift_Buffer = 1;
+            return 1;
+        case RIGHT_SHIFT_PRESSED:
+            Shift_Buffer = 1;
+            return 1;
+        /* Shift released, change the ShiftBuffer to 1 */
+        case LEFT_SHIFT_RELEASED:
+            Shift_Buffer = 0;
+            return 1;
+        case RIGHT_SHIFT_RELEASED:
+            Shift_Buffer = 0;
+            return 1;
+        /* Ctrl pressed, change the ShiftBuffer to 1 */
+        case LEFT_CTRL_PRESSED:
+            Ctrl_Buffer = 1;
+            return 1;
+        /* Ctrl released, change the ShiftBuffer to 1 */
+        case LEFT_CTRL_RELEASED:
+            Ctrl_Buffer = 0;
+            return 1;
+        /* CapsLock pressed, change the CapsLock buffer to 1 */
+        case CAPSLOCK_PRESSED:
+            CapsLock_Buffer = 1;
+            return 1;
+        case CAPSLOCK_RELEASED:
+            CapsLock_Buffer = 0;
+            CapsLock_state = 1 - CapsLock_state; // change the state, if 0, change to 1, if 1, change to 0.
+            return 1;
+        case ALT_PRESSED:
+            return 1;
+        case ALT_RELEASED:
+            return 1;
+        case ESC:
+            return 1;
+        case TAB_PRESSED:
+            return 1;
+        default:
+            return 0;
+    }
+}
+/*Version 3 ML*/
+
 /*Version 1 ML*/
 /*Version 2 ML*/
+
+int32_t copy_buffer(void* buf){
+    int32_t num;
+    while(line_buffer[buffer_index - 1] != '\n'){}
+    num = buffer_index;
+    strncpy((int8_t*) buf, line_buffer, buffer_index);
+    clear_buffer();
+    terminal_read_flag = 0;
+    return num;
+}
+
+

@@ -3,7 +3,7 @@
  */
 
 /*Version 1 :ZLH 2021/3/21 22:00*/
-
+/*Version 2 :ML 2021/3/28 20:04*/
 
 #ifndef _LIB_H
 #define _LIB_H
@@ -21,6 +21,11 @@ void clear(void);
 /*Version 1 ZLH*/
 void scroll_up(void);
 /*Version 1 ZLH*/
+
+/*Version 2 ML*/
+void update_cursor(int32_t x, int32_t y);
+void backspace(void);
+/*Version 2 ML*/
 
 void test_interrupts(void);
 

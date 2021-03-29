@@ -76,7 +76,12 @@ void init_page(void){
 
 
 }
-
+/*
+PAGE_ON
+*Enabling paging is actually very simple. All that is needed is to load CR3 with the address 
+*of the page directory and to set the paging (PG) and protection (PE) bits of CR0. Note: setting
+*the paging flag when the protection flag is clear causes a general-protection exception.
+*/
 
 void PAGE_ON(){
     asm volatile(

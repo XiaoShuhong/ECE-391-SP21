@@ -238,18 +238,22 @@ int read_dentry_by_index_and_read_data_test(){
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//test function：read_data. print the content of the file
 	num_read = read_data(dentry_buffer.inode_num, 0, buf, size);
-	// printf("File size: %d\n", (int32_t)num_read);
-	if(num_read>4096){//file too large. 
-		printf("print first 500 chars:\n");
-		for(i=0; i<500; i++){
-			putc(buf[i]);
-		}		
-	}
-	else{
-		for(i=0; i<num_read; i++){
+	printf("File size : %d\n",num_read);
+	for(i=0; i<num_read; i++){
 			putc(buf[i]);
 		}	
-	}
+	// printf("File size: %d\n", (int32_t)num_read);
+	// if(num_read>4096){//file too large. 
+	// 	printf("print first 500 chars:\n");
+	// 	for(i=0; i<500; i++){
+	// 		putc(buf[i]);
+	// 	}		
+	// }
+	// else{
+	// 	for(i=0; i<num_read; i++){
+	// 		putc(buf[i]);
+	// 	}	
+	// }
 
 	printf("\nend of read_data\n");
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -282,7 +286,7 @@ int read_dentry_by_name_and_read_data_test(){
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//test function：read_dentry_by_name. print dentry.
-	is_fail = read_dentry_by_name((uint8_t*)"frame0.txt", &dentry_buffer);	
+	is_fail = read_dentry_by_name((uint8_t*)"fish", &dentry_buffer);	  //change filename here
 	/*
 	LIST:  
 		"frame0.txt"
@@ -309,20 +313,30 @@ int read_dentry_by_name_and_read_data_test(){
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//test function：read_data. print the content of the file
 	num_read = read_data(dentry_buffer.inode_num, 0, buf, size);
-	// printf("File size: %d\n", (int32_t)num_read);
-	if(num_read>4096){//file too large. 
-		printf("print first 500 chars:\n");
-		for(i=0; i<500; i++){
+	//printf("File size : %d\n",num_read);
+	for(i=0; i<num_read; i++){
+		if(buf[i]!='\0'){
 			putc(buf[i]);
-		}		
-	}
-	else{
-		for(i=0; i<num_read; i++){
-			putc(buf[i]);
-		}	
-	}
-
+		}
+	}	
 	printf("\nend of read_data\n");
+	// printf("File size: %d\n", (int32_t)num_read);
+	// if(num_read>4096){//file too large. 
+	// 	printf("print first 500 chars:\n");
+	// 	for(i=0; i<500; i++){
+	// 		if (buf[i]!='\0'){
+	// 			putc(buf[i]);
+	// 		}
+		
+	// 	}		
+	// }
+	// else{
+	// 	for(i=0; i<num_read; i++){
+	// 		putc(buf[i]);
+	// 	}	
+	// }
+
+	// printf("\nend of read_data\n");
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 return PASS;
@@ -370,7 +384,76 @@ int list_all_files(){
 	return PASS;
 }
 
+int test_file_read(){
+	uint32_t size=10000; 
+	uint8_t buf[size];
+	int32_t num_read;
+	uint32_t off=0;
+	int32_t txt =(int32_t)"frame0.txt";
+	int i;//index
+	num_read=sysfile_read(txt,off,(void*)buf, size);
 
+	printf("File size : %d\n",num_read);
+	for(i=0; i<num_read; i++){
+			putc(buf[i]);
+		}	
+	printf("\nend of read_data\n");
+	return PASS;
+
+}
+
+
+/*check function of file open
+input: filename
+*output: 0 for vaild filename, -1 otherwise
+*/
+int test_file_open()
+{
+	if (sysfile_open("frame0.txt")==0){
+		return PASS;
+	}
+	return FAIL;
+}
+
+/*test_file_write
+* input: None
+output: 0 for pass
+*function test for file write, for read-only file, sysfile_write should return false*/
+int test_file_write()
+{
+	int32_t fd=0;
+	uint8_t buf[1];
+	int32_t nbytes=0;
+	if(sysfile_write(fd,  buf, nbytes)==FAIL){
+		return PASS;
+	}
+	else{
+		return FAIL;
+	}
+}
+/*
+*test_file_close
+*test file close
+*input: none
+*output: none
+*/
+int test_file_close(){
+	int32_t fd=0;
+	if(sysfile_close(fd)==PASS){
+		return PASS;
+	}
+	return FAIL;
+}
+
+int test_dir_open_write_close(){
+	int32_t fd=0;
+	uint8_t buf[1];
+	int32_t nbytes=0;
+	if(sysdir_open((const uint8_t *)"frame0.txt")==0 && sysdir_write(fd, buf, nbytes)==FAIL && sysdir_close(fd)==PASS){
+		return PASS;
+	}
+	return FAIL;
+}
 
 /* Test suite entry point */
 void launch_tests(){
@@ -391,9 +474,17 @@ void launch_tests(){
     
 	// TEST_OUTPUT("page test", page_test());
 
-	// TEST_OUTPUT("file system test0",read_dentry_by_name_and_read_data_test());
-	// TEST_OUTPUT("file system test1",read_dentry_by_index_and_read_data_test());
-	TEST_OUTPUT("list all files",list_all_files());
+	TEST_OUTPUT("file system test0",read_dentry_by_name_and_read_data_test());
+	//TEST_OUTPUT("file system test1",read_dentry_by_index_and_read_data_test());
+	//TEST_OUTPUT("list all files",list_all_files());
+	//TEST_OUTPUT("test file read",test_file_read());
+	//TEST_OUTPUT("test file open",test_file_open());
+	//TEST_OUTPUT("test file write",test_file_write());
+	//TEST_OUTPUT("test file close",test_file_close());
+	//TEST_OUTPUT("test dir open write close",test_dir_open_write_close());
+	
+
+
 /* Checkpoint 2 tests */
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */

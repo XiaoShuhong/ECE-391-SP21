@@ -13,31 +13,31 @@
 #define max_open_files 8
 
 
-
+/*struct use for each d entry, at most 63 dentry can exist*/
 typedef struct dentry
 {
-    uint8_t filename[FILENAME_LEN];
-    uint32_t filetype;
-    uint32_t inode_num;
-    uint8_t reserved[RESERVE_dentry];
+    uint8_t filename[FILENAME_LEN]; //filename
+    uint32_t filetype; //type of file, 0 for rtc file; 1 for directory; 2 for regular file 
+    uint32_t inode_num; //position of inode for this file
+    uint8_t reserved[RESERVE_dentry];// 24B reserved
 }dentry;
-
+/*struct for boot block, only 1*/
 typedef struct boot_block{
-    uint32_t dir_count;
-    uint32_t inode_count;
-    uint32_t data_count;
-    uint8_t reserved[RESERVE_boot_block];
-    dentry direntries[MAX_DENTRY];
+    uint32_t dir_count; //num of d entry exist, at max 63
+    uint32_t inode_count; //num of inodes, smaller than num of d entry 
+    uint32_t data_count;//num of data block each 4K
+    uint8_t reserved[RESERVE_boot_block]; //52B rerserved
+    dentry direntries[MAX_DENTRY]; // d entry array, each has struct dentry
 
 }boot_block;
-
+/*struct for inode*/
 typedef struct inode{
-    uint32_t length;
-    uint32_t data_block_num[MAX_DATA_BLOCK_NUM];
+    uint32_t length; //length for data in Byte
+    uint32_t data_block_num[MAX_DATA_BLOCK_NUM];//data block array,each has type data block
 }inode;
-
+/*struct for data block size 4K*/
 typedef struct single_data_block{
-    uint8_t data[BLOCK_SIZE];
+    uint8_t data[BLOCK_SIZE]; 
 }single_data_block;
 
 

@@ -12,6 +12,7 @@
 #include "i8259.h"
 #include "idt.h"
 #include "rtc.h"
+#include "terminal.h"
 
 #define PASS 1
 // #define FAIL 0
@@ -245,13 +246,13 @@ int read_dentry_by_index_and_read_data_test(){
 	clear();
 	dentry dentry_buffer;
 	int32_t is_fail;
-	uint32_t size=10000; 
+	uint32_t size=50000; 
 	uint8_t buf[size];
 	int32_t num_read;
 	int i;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//test function:read_dentry_by_index
-	is_fail = read_dentry_by_index(10, &dentry_buffer);// index 1 is: sigtest
+	is_fail = read_dentry_by_index(10, &dentry_buffer);// index 10 is: frame0.txt
 	if(is_fail == -1){
 		return FAIL;
 	}
@@ -269,10 +270,14 @@ int read_dentry_by_index_and_read_data_test(){
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//test function：read_data. print the content of the file
 	num_read = read_data(dentry_buffer.inode_num, 0, buf, size);
-	printf("File size : %d\n",num_read);
+	
 	for(i=0; i<num_read; i++){
+		if(buf[i]!='\0'){
 			putc(buf[i]);
-		}	
+		}
+	}
+	printf("\n");
+	printf("File size : %d\n",num_read);
 	// printf("File size: %d\n", (int32_t)num_read);
 	// if(num_read>4096){//file too large. 
 	// 	printf("print first 500 chars:\n");
@@ -309,7 +314,7 @@ int read_dentry_by_name_and_read_data_test(){
 	clear();
 	dentry dentry_buffer;
 	int32_t is_fail;
-	uint32_t size=10000; 
+	uint32_t size=50000; 
 	uint8_t buf[size];
 	int32_t num_read;
 	int i;//used as index
@@ -350,6 +355,8 @@ int read_dentry_by_name_and_read_data_test(){
 			putc(buf[i]);
 		}
 	}	
+	printf("\n");
+	printf("File size : %d\n",num_read);
 	printf("\nend of read_data\n");
 	// printf("File size: %d\n", (int32_t)num_read);
 	// if(num_read>4096){//file too large. 
@@ -405,7 +412,7 @@ int list_all_files(){
 		if(is_fail == -1){
 			return FAIL;
 		}
-		printf("Filet ype:%d ", dentry_buffer.filetype);
+		printf(" File type:%d ", dentry_buffer.filetype);
 		printf("  File size:%d ", (inode*)(inode_men_start+dentry_buffer.inode_num)->length);
 		printf("\n");
 	
@@ -416,18 +423,24 @@ int list_all_files(){
 }
 
 int test_file_read(){
-	uint32_t size=10000; 
+	
+	uint32_t size=50000; 
 	uint8_t buf[size];
 	int32_t num_read;
 	uint32_t off=0;
-	int32_t txt =(int32_t)"frame0.txt";
+	char* txt="verylargetextwithverylongname.txt";
 	int i;//index
-	num_read=sysfile_read(txt,off,(void*)buf, size);
+	clear();
+	num_read=sysfile_read((int32_t)txt,off,(void*)buf, size);
 
-	printf("File size : %d\n",num_read);
+	//printf("File size : %d\n",num_read);
 	for(i=0; i<num_read; i++){
+		if(buf[i]!='\0'){
 			putc(buf[i]);
-		}	
+		}
+	}	
+	printf("\n");
+	printf("File size : %d\n",num_read);
 	printf("\nend of read_data\n");
 	return PASS;
 
@@ -440,7 +453,8 @@ input: filename
 */
 int test_file_open()
 {
-	if (sysfile_open("frame0.txt")==0){
+	char* txt="frame0.txt";
+	if (sysfile_open((const uint8_t*) txt)==0){
 		return PASS;
 	}
 	return FAIL;
@@ -505,10 +519,10 @@ void launch_tests(){
     
 	// TEST_OUTPUT("page test", page_test());
 
-	// TEST_OUTPUT("file system test0",read_dentry_by_name_and_read_data_test());
+	//TEST_OUTPUT("file system test0",read_dentry_by_name_and_read_data_test());
 	//TEST_OUTPUT("file system test1",read_dentry_by_index_and_read_data_test());
 	//TEST_OUTPUT("list all files",list_all_files());
-	//TEST_OUTPUT("test file read",test_file_read());
+	TEST_OUTPUT("test file read",test_file_read());
 	//TEST_OUTPUT("test file open",test_file_open());
 	//TEST_OUTPUT("test file write",test_file_write());
 	//TEST_OUTPUT("test file close",test_file_close());

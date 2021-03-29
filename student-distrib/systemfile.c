@@ -72,11 +72,12 @@ int32_t sysfile_write(int32_t fd, const void* buf, int32_t nbytes){
  * Side Effects: None
  */
 int32_t sysfile_read(int32_t fd, uint32_t offset, void* buf,uint32_t length){
-	dentry* tar_dentry;
-	if(read_dentry_by_name((uint8_t*)fd, tar_dentry) == -1){
-		return -1;
+	dentry tar_dentry;
+	if(read_dentry_by_name((uint8_t*)fd, &tar_dentry) == FAIL){
+        
+		return FAIL;
 	}
-	return read_data(tar_dentry->inode_num, offset, buf, length);    
+	return read_data(tar_dentry.inode_num, offset, buf, length);    
 }
 
 
@@ -108,6 +109,7 @@ int32_t read_dentry_by_name(const uint8_t* fname, dentry* tar_dentry){
     
     //if length of input filename is larger than filename buffer, return fail
     if (tar_dentry==NULL){//|| length>MAX_FILE_NAME_LEN
+        
         return FAIL;
     }
 
@@ -227,7 +229,7 @@ int32_t read_dentry_by_index(uint32_t index, dentry* tar_dentry){
  */
 int32_t read_data(uint32_t inode_idx, uint32_t offset, uint8_t* buf , uint32_t length){
     inode* tar_node;
-    uint32_t end;
+    //uint32_t end;
     int num_full_block,i;
     uint32_t num_read=0;
     uint32_t start_block_off;
@@ -243,35 +245,36 @@ int32_t read_data(uint32_t inode_idx, uint32_t offset, uint8_t* buf , uint32_t l
         return 0;
     }
     if(offset+length>tar_node->length){
-        end =tar_node->length-1;//data exist smaller than data need, only read what exist
+        //end =tar_node->length-1;//data exist smaller than data need, only read what exist
+        length=tar_node->length-offset;
     }
-    else {
-        end=offset+length; 
-    }
+    // else {
+    //     end=offset+length; 
+    // }
 
 
     start_data_block_index=tar_node->data_block_num[offset/BLOCK_SIZE];//with each block contain 4K data, find the start data block num
-    end_data_block_index=tar_node->data_block_num[end/BLOCK_SIZE];//with each block contain 4K data, find the end data block num
+    end_data_block_index=tar_node->data_block_num[length/BLOCK_SIZE];//with each block contain 4K data, find the end data block num
     start_data_block = &data_block_men_start[start_data_block_index];//start data block
     end_data_block = &data_block_men_start[end_data_block_index];//end data block
     start_block_off=offset%BLOCK_SIZE;// the position to start in the start data block
 
     start_data_block_add=(uint32_t)&(tar_node->data_block_num[offset/BLOCK_SIZE]);//the add of start data blocjk in the inode block
-    end_data_block_add=(uint32_t)&(tar_node->data_block_num[end/BLOCK_SIZE]);//the add of end data block in the inode block
+    end_data_block_add=(uint32_t)&(tar_node->data_block_num[length/BLOCK_SIZE]);//the add of end data block in the inode block
     if(length<BLOCK_SIZE-start_block_off){
         memcpy((void*)buf,(const void*)(((uint32_t)start_data_block) +start_block_off),length);
         num_read+=length; //only read several byte in the start block
-        return num_read;
+        return length;
     }
     memcpy((void*)buf,(const void*)(((uint32_t)start_data_block) +start_block_off),BLOCK_SIZE-start_block_off); //first read all data remain in the start block
     num_read+=BLOCK_SIZE-start_block_off;
     if (start_data_block_add==end_data_block_add){ //if only one block need to be read
-        return num_read;
+        return length;
     }
     if((end_data_block_add-start_data_block_add)==sizeof(start_data_block_add)){  //two block need to read
         memcpy((void*)(((uint32_t)buf)+num_read),(const void*)end_data_block,length-num_read);
         num_read+=length-num_read;
-        return num_read;
+        return length;
     }
     else{
         num_full_block=(end_data_block_add-start_data_block_add)/sizeof(start_data_block_add)-1; //more than two block need to be read, all central block should be read all
@@ -288,7 +291,7 @@ int32_t read_data(uint32_t inode_idx, uint32_t offset, uint8_t* buf , uint32_t l
         }
         memcpy((void*)(((uint32_t)buf)+num_read),(const void*)end_data_block,length-num_read);
         num_read+=length-num_read;
-        return num_read;
+        return length;
 
     }
     return FAIL;

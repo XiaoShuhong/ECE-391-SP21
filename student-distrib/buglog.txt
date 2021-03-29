@@ -28,4 +28,23 @@ description: we can only enable the keyboard interrupt under the condition that 
 sol1: We push EFLAG before call init_IDT and restore EFALG after that. In this case, we will still have IF=0 even we have called the init_IDT. Since IF=0, no interrupts will occur.
 Just delete the "pushfl".
 
+/* BUG LOG for CheckPoint 2 */
+ML
+BUG 1 2021/3/28 21:53
+file: keyboard.c
+description: After the special keys are printed, the keyboard cannot be used.
+sol1: modify the send_eoi function at the top of the keyboard handler. // fixed
+
+
+BUG 2 2021/3/28 18:30
+file:systemfile.c
+description: when doing read data, to check how many data block it obtain, we check whether their index difference, but actually the data block in the block array is randomly organized, so this approach fail.
+sol: instead of using their index difference, we check the difference of the address of these data block, a difference of 32B mean two data block are connect, other like this.
+
+BUG 3 2021/29/23:49
+file:systemfile.c
+description: when doing read data, to copy data from data block to our buffer, we use num_read to track how many data has been read, and finally return num_data as # of data read. While actually we miss the situation that the length need to read is larger than the data has, so sometimes we get wrong.
+sol: first check this situation and if it is true, change the length to read just equal to the left number of data.
+
+
 

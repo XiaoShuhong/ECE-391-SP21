@@ -206,6 +206,12 @@ int32_t puts(int8_t* s) {
  * Return Value: void
  *  Function: Output a character to the console */
 void putc(uint8_t c) {
+    // /******/
+    // if (c == '\b'){
+    //     backspace();
+    //     return;
+    // }
+    // /******/
     if(c == '\n' || c == '\r') {
         screen_y++;
         screen_x = 0;

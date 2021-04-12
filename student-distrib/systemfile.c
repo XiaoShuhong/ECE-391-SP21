@@ -312,7 +312,7 @@ int32_t read_data(uint32_t inode_idx, uint32_t offset, uint8_t* buf , uint32_t l
  */
 
 int32_t sysdir_read(int32_t fd, void* buf, uint32_t  nbytes){
-    //int32_t test=10/0;
+    //int32_t test=10/0;//used to test ecxeption handler
     if(fd>max_open_files ||fd<0 ){return FAIL;}
     dentry tar_dentry;
     int i;

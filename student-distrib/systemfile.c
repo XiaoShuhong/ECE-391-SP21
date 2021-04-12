@@ -1,6 +1,6 @@
 #include "systemfile.h"
 #include "lib.h"
-
+#include "system_call.h"
 inode* inode_men_start;
 single_data_block* data_block_men_start;
 
@@ -71,13 +71,16 @@ int32_t sysfile_write(int32_t fd, const void* buf, int32_t nbytes){
  * Outputs: -1 for invalid, 0 for successfully read
  * Side Effects: None
  */
-int32_t sysfile_read(int32_t fd, uint32_t offset, void* buf,uint32_t length){
-	dentry tar_dentry;
-	if(read_dentry_by_name((uint8_t*)fd, &tar_dentry) == FAIL){
+int32_t sysfile_read(int32_t fd, void* buf,uint32_t nbytes){
+	// if(read_dentry_by_name((uint8_t*)fd, &tar_dentry) == FAIL){
         
-		return FAIL;
-	}
-	return read_data(tar_dentry.inode_num, offset, buf, length);    
+	// 	return FAIL;
+	// }
+    if(fd>max_open_files ||fd<0 ){return FAIL;}
+    uint32_t RESULT =read_data(current_PCB->file_array[fd].inode_index, current_PCB->file_array[fd].file_position, buf, nbytes);  
+    if(RESULT==FAIL){return FAIL;}  
+    current_PCB->file_array[fd].file_position=current_PCB->file_array[fd].file_position+RESULT;
+	return 0;
 }
 
 
@@ -308,19 +311,27 @@ int32_t read_data(uint32_t inode_idx, uint32_t offset, uint8_t* buf , uint32_t l
  * Side Effects: None
  */
 
-int32_t sysdir_read(int32_t fd, uint32_t offset, void* buf, int32_t nbytes){
+int32_t sysdir_read(int32_t fd, void* buf, uint32_t  nbytes){
+    //int32_t test=10/0;
+    if(fd>max_open_files ||fd<0 ){return FAIL;}
     dentry tar_dentry;
     int i;
-    int return_val=read_dentry_by_index(offset, &tar_dentry); //check return is valid?
+    //if(current_PCB->file_array[fd].filename!=(uint8_t*)"."){return FAIL; }
+    if(current_PCB->file_array[fd].file_position>=17){return 0;}//we have 17 files.
+
+    int return_val= read_dentry_by_index(current_PCB->file_array[fd].file_position, &tar_dentry); //check return is valid?
 	if(return_val== -1){
 		return FAIL;
 	}
-    for (i = 0; i < 33; i++){ 
+    for (i = 0; i < MAX_FILE_NAME_LEN+1; i++){ 
         ((int8_t*)(buf))[i] = '\0'; // init buf all with \0
     }
 
     strncpy((int8_t*)buf, (const int8_t*)tar_dentry.filename,strlen((int8_t*)tar_dentry.filename));
-    return 0;
+    ((int8_t*)(buf))[MAX_FILE_NAME_LEN] = '\0';//32 is the last position of a filename.
+    current_PCB->file_array[fd].file_position++;
+    if( (int32_t)strlen((int8_t*)tar_dentry.filename) ==MAX_FILE_NAME_LEN+1){return MAX_FILE_NAME_LEN;}
+    return (int32_t)strlen((int8_t*)tar_dentry.filename);
 
 
 

@@ -9,7 +9,7 @@
 /*Version 2 ZLH*/
 #define SYSTEM_IDT_INDEX 0x80
 /*Version 2 ZLH*/
-
+#define EXCEPTION_ERR 0xF
 //extern void rtc_interrupt_handler();// this function is defined in rtc.S 
  /*Version 1 LYC*/
 

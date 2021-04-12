@@ -50,12 +50,12 @@ uint32_t init_sysfile(void);
 int32_t sysfile_open(const uint8_t* filename);
 int32_t sysfile_close(int32_t fd);
 int32_t sysfile_write(int32_t fd, const void* buf, int32_t nbytes);
-int32_t sysfile_read(int32_t fd, uint32_t offset, void* buf,uint32_t length);
+int32_t sysfile_read(int32_t fd, void* buf,uint32_t nbytes);
 
 
 
 
-int32_t sysdir_read(int32_t fd, uint32_t offset, void* buf, int32_t nbytes);
+int32_t sysdir_read(int32_t fd, void* buf, uint32_t  nbytes);
 int32_t sysdir_open(const uint8_t* filename);
 int32_t sysdir_close(int32_t fd);
 int32_t sysdir_write(int32_t fd, const void* buf, int32_t nbytes);

@@ -203,7 +203,7 @@ rtc_close(int32_t fd){
  * Return: 0
  */
 int32_t
-rtc_read(int32_t fd, void* buf, int32_t nbytes)
+rtc_read(int32_t fd, void* buf, uint32_t nbytes)
 {
 	interrupt_flag = 0;
 	while(interrupt_flag == 0);
@@ -229,7 +229,7 @@ rtc_write(int32_t fd, const void* buf, int32_t nbytes){
         return NOT_SUCCESS;
     
     //get the frequency from the buffer
-    volatile int32_t freq = ((int32_t) buf);
+    volatile int32_t freq = *((int32_t*) buf);
 
     //init a rate to use
     volatile uint32_t rate = 0;

@@ -21,7 +21,7 @@ int32_t buffer_index = 0; // the cursor index of the buffer
  * Return: buffer_index : the index of the cursor in the buffer
  * Side Effects: copy the content of line buffer into the terminal buffer
  */
-int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes)
+int32_t terminal_read(int32_t fd, void* buf, uint32_t nbytes)
 {
 // 	if(nbytes!=LINE_BUFFER_SIZE || buf==NULL){
 //         return FAIL;

@@ -14,6 +14,7 @@
 #include "keyboard.h"
 #include "page.h"
 #include "systemfile.h"
+#include "system_call.h"
 // #include "idt.h"
 #define RUN_TESTS
 
@@ -163,6 +164,7 @@ void entry(unsigned long magic, unsigned long addr) {
     init_keyboard();
     init_page();
     init_sysfile();
+    init_fop_table();
     /*Version 1 LYC*/
 
     /* Initialize devices, memory, filesystem, enable device interrupts on the
@@ -180,7 +182,7 @@ void entry(unsigned long magic, unsigned long addr) {
     launch_tests();
 #endif
     /* Execute the first program ("shell") ... */
-
+    execute((uint8_t*)"shell");
     /* Spin (nicely, so we don't chew up cycles) */
     asm volatile (".1: hlt; jmp .1;");
 }

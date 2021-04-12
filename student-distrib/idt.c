@@ -13,6 +13,7 @@
 #include "rtc.h"
 #include "keyboard.h"
 #include "assembly.h"
+#include "sys_call.h"
 
 /*Version 4 ML*/
 
@@ -26,9 +27,11 @@
  */
 #define constuct_ex_handler(function_name, string)   \
 void function_name(){                                \
-    printf("%s\n",string);                           \
-    while(1){}                                       \
-}                                                    \
+    printf("%s\n",string); \
+    halt(EXCEPTION_ERR);   }                         
+    // while(1){}                                       \
+
+                                                  
 
 constuct_ex_handler(ex_divide_error,"ex_divide_error");
 constuct_ex_handler(ex_reserved,"ex_reserved");
@@ -53,7 +56,7 @@ constuct_ex_handler(ex_simd_floating_point_exception,"ex_simd_floating_point_exc
 
 //This is only for checkpoint 1
 /*Version 3 ZLH*/
-constuct_ex_handler(system_call_handler,"system_call_handler");
+// constuct_ex_handler(system_call_handler,"system_call_handler");
 /*Version 3 ZLH*/
 
 
@@ -138,8 +141,9 @@ void init_idt(){
     /*Version 2 LYC*/
     
     /*Version 3 ZLH*/
-    SET_IDT_ENTRY(idt[SYSTEM_IDT_INDEX],system_call_handler);
+    SET_IDT_ENTRY(idt[SYSTEM_IDT_INDEX],sys_call_handler);
     idt[SYSTEM_IDT_INDEX].present = 1;
+    idt[SYSTEM_IDT_INDEX].dpl = 3;
     /*Version 3 ZLH*/    
 
     // set the special case

@@ -14,6 +14,7 @@
 #include "keyboard.h"
 #include "assembly.h"
 #include "sys_call.h"
+#include "system_call.h"
 
 /*Version 4 ML*/
 
@@ -27,9 +28,8 @@
  */
 #define constuct_ex_handler(function_name, string)   \
 void function_name(){                                \
-    printf("%s\n",string); \
-    halt(EXCEPTION_ERR);   }                         
-    // while(1){}                                       \
+    printf("%s\n",string);                           \
+    halt(EXCEPTION_ERR);   }                         \
 
                                                   
 

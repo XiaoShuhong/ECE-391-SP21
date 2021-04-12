@@ -47,4 +47,20 @@ description: when doing read data, to copy data from data block to our buffer, w
 sol: first check this situation and if it is true, change the length to read just equal to the left number of data.
 
 
+/* BUG LOG for CheckPoint 3 */
+LYC
+BUG 1 2021/4/12 22:45
+file: system_call.c
+description: When we set the new process's stack , we set it as:  start user address + 4MB. This cause a page fault.
+sol: start user address + 4MB is in the next page directory entry. So, the real bottom should be: start user address + 4MB -4 bytes.
+
+BUG 2 2021/4/12 22:45
+file: system_call.c
+description: We set eip to be byte 24-27 of the user program when we want eip to be next process's first instruction. 
+sol: byte 24-27 stores pointer to the first instruction. So, we should set eip to *(byte 24-27 of the user program)
+
+BUG 3 2021/4/12 22:45
+file: system_call.c
+description: after halting a process, we forget to set PCB_array[pid] to NULL. As a result, we will count the halting process as one of running procrssed.
+sol: just set PCB_array[pid] to NULL in the halt function.
 

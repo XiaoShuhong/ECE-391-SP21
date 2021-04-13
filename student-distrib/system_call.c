@@ -119,7 +119,9 @@ int32_t halt (uint8_t status){
 
     /* deal with the occasion of the base shell */
     if ((current_PCB -> parent_pid) == -1){
+        PCB_array[current_PCB->pid] = NULL;
         printf("This is a base shell\n");
+        execute((uint8_t*)"shell");
     }
 
     /* get the parent process */
@@ -231,6 +233,7 @@ int32_t execute(const uint8_t* command){
             break;
         }
     }
+
     if(new_pid==-1){
         return FAIL;
     }
@@ -239,11 +242,11 @@ int32_t execute(const uint8_t* command){
 
     //copy file data to newly allocated page 
     uint32_t length= ((inode*)(inode_men_start+tar_dentry.inode_num))->length;
-    uint8_t data_buf[length];
-    if(read_data(tar_dentry.inode_num, 0, data_buf ,length)==FAIL){
+    //uint8_t data_buf[length];
+    if(read_data(tar_dentry.inode_num, 0, (uint8_t*)file_data_base_add ,length)==FAIL){
         return FAIL;
     }
-    memcpy((void*)file_data_base_add, (const void*)data_buf,length );
+    //memcpy((void*)file_data_base_add, (const void*)data_buf,length );
 
     //create new PCB
     create_new_PCB(arg,new_pid);
@@ -593,6 +596,10 @@ int32_t read(int32_t fd, void* buf, uint32_t length){
  */
 int32_t write(int32_t fd, const void* buf, int32_t nbytes){
     /* check the fail occasions */
+    
+    if (fd <= 0 || fd >= max_open_files ){
+        return FAIL;
+    }
     if( (int)buf < USER_SPACE_START || (int)buf + nbytes > USER_SPACE_END - 4 ){
         return FAIL;
     }

@@ -13,6 +13,7 @@ single_data_block* data_block_men_start;
  * Side Effects: None
  */
 uint32_t init_sysfile(void){
+    printf("Init SystemFile...\n");
     inode_men_start=(inode*)(sysfile_mem_start+1);//set add for start inode the add of one boot block after the start of system file 
     data_block_men_start=(single_data_block*)(sysfile_mem_start->inode_count+inode_men_start);//set the start add for data block by add sum of all index block
 

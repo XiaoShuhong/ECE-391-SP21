@@ -125,6 +125,7 @@ uint8_t CapsLock_state = 0;
 void
 init_keyboard(void){
     // cli();
+    printf("Init keyboard...\n");
     enable_irq(KEYBOARD_IRQ);
     // sti();
 }

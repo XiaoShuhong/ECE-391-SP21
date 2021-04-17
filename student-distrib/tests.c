@@ -82,6 +82,7 @@ int division_test(){
     int b=4;
     for(i = 0;i<20;i++){
 	b=b/a;
+
 	}
 
 	return FAIL; // if the exception happened, we can never get here
@@ -511,7 +512,7 @@ void launch_tests(){
 
 	// TEST_OUTPUT("division_test", division_test());
 
-	// TEST_OUTPUT("any exception",test_one_excp());
+	// TEST_OUTPUT("any exception",test_any_excp());
 	
 	// TEST_OUTPUT("disable_garbage",test_i8259_disable_irq_garbage());
 	

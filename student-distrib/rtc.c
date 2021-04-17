@@ -29,6 +29,7 @@ static volatile int interrupt_flag = 0;
  * Side Effects: Enable the RTC the RTC interrupt( open irq 8)
  */
 void init_rtc(){
+    printf("Init Real Time Clock...\n");
     //reference:https://wiki.osdev.org/RTC
     cli();
     

@@ -84,6 +84,7 @@ file_op_table get_dir_fop(void){
  */
 
 int32_t init_fop_table(void){
+    printf("Init FOP TABLE...\n");
     //fop_table[TEMINAL_INDEX] = get_terminal_fop();
     fop_table[RTC_INDEX] = get_rtc_fop();
     fop_table[FILE_INDEX] = get_file_fop();

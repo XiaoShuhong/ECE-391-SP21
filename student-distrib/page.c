@@ -4,6 +4,8 @@
 // #include "page_assembly.h"
 #include "x86_desc.h"
 #include "page.h"
+#include "lib.h"
+
 void PAGE_ON();
 PDE PD[entry_num];// __attribute__((aligned (four_k)));
 PTE PT[entry_num];
@@ -16,6 +18,7 @@ input: None
 output: None
 */
 void init_page(void){
+    printf("Init PAGE...\n");
     int i=0;
     //fill first 4MB to be KB
     PD[0].k.p=1; // present set to present

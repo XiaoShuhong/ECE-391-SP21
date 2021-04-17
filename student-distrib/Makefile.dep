@@ -11,7 +11,7 @@ kernel.o: kernel.c multiboot.h types.h x86_desc.h lib.h i8259.h debug.h \
 keyboard.o: keyboard.c x86_desc.h types.h lib.h i8259.h keyboard.h \
   terminal.h
 lib.o: lib.c lib.h types.h
-page.o: page.c x86_desc.h types.h page.h
+page.o: page.c x86_desc.h types.h page.h lib.h
 rtc.o: rtc.c rtc.h types.h lib.h i8259.h
 system_call.o: system_call.c systemfile.h types.h system_call.h \
   x86_desc.h terminal.h page.h lib.h rtc.h

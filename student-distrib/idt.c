@@ -4,6 +4,7 @@
 /*Version 2 LYC 2021/3/20 18:45*/
 /*Version 3 ZLH 2021/3/22 19:00*/
 /*Version 4 ML 2021/3/22 19:53 add function header and comments*/
+/*Version 5 ML 2021/3/22 19:53 beautify*/
 
 /*Version 1 ML*/
 #include "x86_desc.h"
@@ -33,25 +34,25 @@ void function_name(){                                \
 
                                                   
 
-constuct_ex_handler(ex_divide_error,"ex_divide_error");
-constuct_ex_handler(ex_reserved,"ex_reserved");
-constuct_ex_handler(ex_nmi_interrupt,"ex_nmi_interrupt");
-constuct_ex_handler(ex_breakpoint,"ex_breakpoint");
-constuct_ex_handler(ex_overflow,"ex_overflow");
-constuct_ex_handler(ex_bound_range_exceeded,"ex_bound_range_exceeded");
-constuct_ex_handler(ex_invalid_opcode,"ex_invalid_opcode");
-constuct_ex_handler(ex_device_not_available,"ex_device_not_available");
-constuct_ex_handler(ex_double_fault,"ex_double_fault");
-constuct_ex_handler(ex_coprocessor_segment,"ex_coprocessor_segment");
-constuct_ex_handler(ex_invalid_tss,"ex_invalid_tss");
-constuct_ex_handler(ex_segment_not_present,"ex_segment_not_present");
-constuct_ex_handler(ex_stack_segment_fault,"ex_stack_segment_fault");
-constuct_ex_handler(ex_general_protection,"ex_general_protection");
-constuct_ex_handler(ex_page_fault,"ex_page_fault");
-constuct_ex_handler(ex_math_fault,"ex_math_fault");
-constuct_ex_handler(ex_alignment_check,"ex_alignment_check");
-constuct_ex_handler(ex_machine_check,"ex_machine_check");
-constuct_ex_handler(ex_simd_floating_point_exception,"ex_simd_floating_point_exception");
+constuct_ex_handler(ex_divide_error,                                        "_EXCEPTION_NUMBER:0, DIVIDE ERROR!");
+constuct_ex_handler(ex_reserved,                                            "_EXCEPTION_NUMBER:1, RESERVED!");
+constuct_ex_handler(ex_nmi_interrupt,                                       "_EXCEPTION_NUMBER:2, NMI INTERRUPT!");
+constuct_ex_handler(ex_breakpoint,                                          "_EXCEPTION_NUMBER:3, BREAKPOINT!!");
+constuct_ex_handler(ex_overflow,                                            "_EXCEPTION_NUMBER:4, OVERFLOW!");
+constuct_ex_handler(ex_bound_range_exceeded,                                "_EXCEPTION_NUMBER:5, BOUND RANGE EXCEEDED!");
+constuct_ex_handler(ex_invalid_opcode,                                      "_EXCEPTION_NUMBER:6, INVALID OPCODE!");
+constuct_ex_handler(ex_device_not_available,                                "_EXCEPTION_NUMBER:7, DEVICE NOT AVAILABLE!");
+constuct_ex_handler(ex_double_fault,                                        "_EXCEPTION_NUMBER:8, DOUBLE FAULT!");
+constuct_ex_handler(ex_coprocessor_segment,                                 "_EXCEPTION_NUMBER:9, COPROCESSOR SEGMENT");
+constuct_ex_handler(ex_invalid_tss,                                         "_EXCEPTION_NUMBER:10, INVALID TSS!");
+constuct_ex_handler(ex_segment_not_present,                                 "_EXCEPTION_NUMBER:11, SEGMENT NOT PRESENT!");
+constuct_ex_handler(ex_stack_segment_fault,                                 "_EXCEPTION_NUMBER:12, STACK SEGMENT FAULT!");
+constuct_ex_handler(ex_general_protection,                                  "_EXCEPTION_NUMBER:13, GENERAL PROTECTION!");
+constuct_ex_handler(ex_page_fault,                                          "_EXCEPTION_NUMBER:14, PAGE FAULT!");
+constuct_ex_handler(ex_math_fault,                                          "_EXCEPTION_NUMBER:16, MATH FAULT!");
+constuct_ex_handler(ex_alignment_check,                                     "_EXCEPTION_NUMBER:17, ALIGNMENT CHECK!");
+constuct_ex_handler(ex_machine_check,                                       "_EXCEPTION_NUMBER:18, MACHINE CHECK!");
+constuct_ex_handler(ex_simd_floating_point_exception,                       "_EXCEPTION_NUMBER:19, SIMD FLOATING POINT EXCEPTION!");
 
 
 //This is only for checkpoint 1
@@ -68,6 +69,7 @@ constuct_ex_handler(ex_simd_floating_point_exception,"ex_simd_floating_point_exc
  * Side Effects: set the exception, interrupt, system call handler function pointers to out idt
  */
 void init_idt(){
+    printf("Init IDT...\n");
     cli();
     int i; //loop index
 

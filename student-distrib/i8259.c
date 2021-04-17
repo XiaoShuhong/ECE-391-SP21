@@ -23,6 +23,8 @@ uint8_t slave_mask = MASK;  /* IRQs 8-15 */
  *  SIDE EFFECTS: Initialize the 8259 PIC.
  */
 void i8259_init(void) {
+
+    printf("Init i8259...\n");
     
     /* Mask all the things in 8259 */
     outb(MASK,MASTER_8259_DATA);

@@ -260,7 +260,7 @@ typedef union PDE{// a union which for both 4K byte page table and 4M byte page,
 
 extern PDE PD[entry_num] __attribute__((aligned (four_k)));
 extern PTE PT[entry_num] __attribute__((aligned (four_k)));
-
+extern PTE PT_for_video[entry_num] __attribute__((aligned (four_k)));
 
 
 

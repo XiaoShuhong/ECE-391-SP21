@@ -152,6 +152,20 @@ int32_t halt (uint8_t status){
 
     uint16_t E_status=(uint16_t)status;
     if (status == EXCEPTION_STATUS){E_status = EXCEPTION_RETURNVALUE;}
+    
+    
+    //close video page:
+    PT_for_video[user_PT_index].p=0;// present set to present
+    int32_t PD_entry_index = user_video_start_address >>offset_22; 
+    PD[PD_entry_index].k.p=0; // present set to present
+    asm volatile(
+        "movl %%cr3,%%eax   ;"
+        "movl %%eax,%%cr3   ;"
+        : : : "eax","cc"
+    );
+
+
+
     sti();
     asm volatile(
         "movl %0, %%esp ;"
@@ -338,9 +352,37 @@ void create_new_PCB(int8_t* arg, int32_t new_pid){
     for (i=2;i<MAX_FD_NUM;i++){
         PCB_array[new_pid]->file_array[i].flags=0;
     }
- 
+    
+    PCB_array[new_pid]->arg_buffer=(uint8_t *)arg;
     return ;
 }
+
+
+/* 
+ * getargs (uint8_t* buf, int32_t nbytes)
+ *   Description: get the args in current PCB and copy it into a buffer which is in user space
+ *        Inputs: buf: the pointer of the buffer which we should copy into
+ *                nbytes: the length of bytes contained in buf
+ *        Output: copy the args into the buffer
+ *        Return: FAIL (-1) / SUCCESS (0)
+ */
+int32_t getargs (uint8_t* buf, int32_t nbytes){
+    /* check whether the buffer is in the user space */
+    if( (int32_t)buf < USER_SPACE_START || (int32_t)buf + nbytes > USER_SPACE_END - 4 ){
+        return FAIL;
+        }
+    /* if there is no args return FAIL */
+    if (current_PCB->arg_buffer[0] == NULL){
+        return FAIL;
+    }
+    /* if there is args, get the args into buffer */
+    strncpy((int8_t *)buf, (const int8_t *)current_PCB->arg_buffer, (uint32_t)nbytes);         
+    return SUCCESS;
+}
+
+
+
+
 
 
 
@@ -404,7 +446,7 @@ int32_t bad_call_read(int32_t fd, void* buf,uint32_t length){
  */
 int32_t split_argument(const uint8_t* command,int8_t* filename,int8_t* arg){
     int32_t count=0;
-    int32_t flag= 0, is_filename=0;
+    int32_t flag= 0, is_filename=0, final_signal=0;
     int32_t arg_idx=0,file_idx=0;
 
     while (command[count]!='\0'){
@@ -422,12 +464,13 @@ int32_t split_argument(const uint8_t* command,int8_t* filename,int8_t* arg){
             file_idx++;
             flag=1;  
         }
-        if(command[count]==' ' && flag==1){
+        if(command[count]==' ' && flag==1 && final_signal==0){
             count++;
             is_filename=1;
             continue;
         }
-        if(command[count]!=' '&&is_filename==1){
+        if(is_filename==1){//command[count]!=' '&&
+            final_signal=1;
             if(arg_idx>=(BUF_SIZE-1)){
                 return FAIL;
             }
@@ -512,7 +555,7 @@ int32_t open(const uint8_t* filename){
 
     /* if the file does not exist, return fail */
     if(read_dentry_by_name(filename,&current_dentry) == -1){
-        printf("The file is not exist!");
+        //printf("The file is not exist!");
         return FAIL; 
     }
 
@@ -624,8 +667,61 @@ int32_t write(int32_t fd, const void* buf, int32_t nbytes){
 
 
 
-int32_t getargs (uint8_t* buf, int32_t nbytes){return FAIL;}
-int32_t vidmap (uint8_t** screen_start){return FAIL;}
+
+int32_t vidmap (uint8_t** screen_start){
+    int32_t PD_index = ((int32_t)screen_start) >>offset_22; 
+    
+    
+    //check if screen_start is vaild
+    if(   PD_index != user_PD_index          ){return FAIL;}
+    if( (int32_t)screen_start < USER_SPACE_START || (int32_t)screen_start > USER_SPACE_END -avoid_page_fault_fence ){return FAIL;} 
+
+    
+    //open page
+
+    //open PD_entry
+    int32_t PD_entry_index = user_video_start_address >>offset_22; 
+    PD[PD_entry_index].k.p=1; // present set to present
+    PD[PD_entry_index].k.r_w=1;// enable write and read
+    PD[PD_entry_index].k.u_s=1; //set supervisor priviledge level
+    PD[PD_entry_index].k.pwt=0; // make write cache enable
+    PD[PD_entry_index].k.pcd=0; // make page table to be cached
+    PD[PD_entry_index].k.a=0; //initially set to 0, wait user to visit for first time
+    PD[PD_entry_index].k.reserved=0; //basically set to 0
+    PD[PD_entry_index].k.ps=0; // clear for page size 4kb
+    PD[PD_entry_index].k.g=0;//not frequently use 
+    PD[PD_entry_index].k.avail=0; //all 32 bits are available to software
+    PD[PD_entry_index].k.ptb_add=(int) PT_for_video>>shift_twelve; //get the most significant 20 bit
+
+
+    //open PT
+    PT_for_video[user_PT_index].p=1;// present set to present
+    PT_for_video[user_PT_index].r_w=1;//// enable write and read
+    PT_for_video[user_PT_index].u_s=1; //set supervisor priviledge level
+    PT_for_video[user_PT_index].pwt=0; // make write cache enable
+    PT_for_video[user_PT_index].pcd=0;// make page table to be cached
+    PT_for_video[user_PT_index].a=0; //initially set to 0, wait user to visit for first time
+    PT_for_video[user_PT_index].d=1; //set when point to page 
+    PT_for_video[user_PT_index].pat=0;//set 0 fro processor not support
+    PT_for_video[user_PT_index].g=0;//frequently use, global page
+    PT_for_video[user_PT_index].avail=0;//all 32 bits are available to software
+    PT_for_video[user_PT_index].ptb_add=video_memory>>shift_twelve;
+
+
+    
+    asm volatile(
+        "movl %%cr3,%%eax   ;"
+        "movl %%eax,%%cr3   ;"
+        : : : "eax","cc"
+    );
+
+    *screen_start = (uint8_t*)(user_video_start_address);
+    
+    return SUCCESS;
+
+
+
+}
 int32_t set_handler (int32_t signum, void* handler_address){return FAIL;}
 int32_t sigreturn (void){return FAIL;}
 

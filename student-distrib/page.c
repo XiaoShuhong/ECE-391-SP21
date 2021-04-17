@@ -7,7 +7,7 @@
 void PAGE_ON();
 PDE PD[entry_num];// __attribute__((aligned (four_k)));
 PTE PT[entry_num];
-
+PTE PT_for_video[entry_num];
 /*
 init_page:
 initial page directory entry for the first 4MB with kb form and second 4MB with MB form for kernel

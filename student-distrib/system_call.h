@@ -7,7 +7,7 @@
 
 #define MAX_FD_NUM 8
 #define MAX_FILE_LEN 32+1
-#define BUF_SIZE 16
+#define BUF_SIZE 128
 #define LEN_ELF 4
 #define ELF_buf_size 4
 #define pcb_array_size 6
@@ -38,7 +38,10 @@
 #define avoid_page_fault_fence 4
 #define EXCEPTION_STATUS  0x0F
 #define EXCEPTION_RETURNVALUE 256
-
+#define offset_22 22
+#define user_PD_index 0x8000000 >>22
+#define user_video_start_address 0x8400000
+#define user_PT_index 0
 typedef struct file_op_table{
     int32_t (*open)(const uint8_t* filename);
     int32_t (*close)(int32_t fd);
@@ -69,8 +72,10 @@ typedef struct PCB{
 
     uint32_t tss_esp0;
 
-    uint32_t esp;
-    uint32_t ebp;
+    uint32_t esp;// previous one's esp
+    uint32_t ebp;// previous one's ebp
+
+    uint8_t* arg_buffer;
 
 
 

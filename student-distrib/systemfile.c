@@ -80,7 +80,7 @@ int32_t sysfile_read(int32_t fd, void* buf,uint32_t nbytes){
     uint32_t RESULT =read_data(current_PCB->file_array[fd].inode_index, current_PCB->file_array[fd].file_position, buf, nbytes);  
     if(RESULT==FAIL){return FAIL;}  
     current_PCB->file_array[fd].file_position=current_PCB->file_array[fd].file_position+RESULT;
-	return 0;
+	return RESULT;
 }
 
 
@@ -247,7 +247,7 @@ int32_t read_data(uint32_t inode_idx, uint32_t offset, uint8_t* buf , uint32_t l
     if(offset>=tar_node->length){
         return 0;
     }
-    if(offset+length>tar_node->length){
+    if((offset+length)>tar_node->length){
         //end =tar_node->length-1;//data exist smaller than data need, only read what exist
         length=tar_node->length-offset;
     }
@@ -257,13 +257,13 @@ int32_t read_data(uint32_t inode_idx, uint32_t offset, uint8_t* buf , uint32_t l
 
 
     start_data_block_index=tar_node->data_block_num[offset/BLOCK_SIZE];//with each block contain 4K data, find the start data block num
-    end_data_block_index=tar_node->data_block_num[length/BLOCK_SIZE];//with each block contain 4K data, find the end data block num
+    end_data_block_index=tar_node->data_block_num[(offset+length)/BLOCK_SIZE];//with each block contain 4K data, find the end data block num
     start_data_block = &data_block_men_start[start_data_block_index];//start data block
     end_data_block = &data_block_men_start[end_data_block_index];//end data block
     start_block_off=offset%BLOCK_SIZE;// the position to start in the start data block
 
     start_data_block_add=(uint32_t)&(tar_node->data_block_num[offset/BLOCK_SIZE]);//the add of start data blocjk in the inode block
-    end_data_block_add=(uint32_t)&(tar_node->data_block_num[length/BLOCK_SIZE]);//the add of end data block in the inode block
+    end_data_block_add=(uint32_t)&(tar_node->data_block_num[(offset+length)/BLOCK_SIZE]);//the add of end data block in the inode block
     if(length<BLOCK_SIZE-start_block_off){
         memcpy((void*)buf,(const void*)(((uint32_t)start_data_block) +start_block_off),length);
         num_read+=length; //only read several byte in the start block

@@ -8,7 +8,7 @@
 
 PCB* PCB_array[pcb_array_size]={NULL,NULL,NULL,NULL,NULL,NULL};
 PCB* current_PCB;
-
+int32_t shell_count=0;
 
 file_op_table fop_table[NUM_DRIVERS];
 
@@ -112,6 +112,11 @@ int32_t halt (uint8_t status){
     int32_t i;
     //int32_t flag;
     cli();
+
+    if(current_PCB->shell_indicator==1){
+        shell_count = shell_count-1;
+    }
+
 
     /* free the current process in bitmap*/
     if (current_PCB == NULL){
@@ -228,7 +233,24 @@ int32_t execute(const uint8_t* command){
     if(split_argument(command,filename, arg)==FAIL){ //split the command into arg and filename
         return FAIL;
     }
+    //check if shell>3
+    int32_t g=0;//index
+    uint8_t* SHELL=(uint8_t*)"shell";
+    int32_t is_shell=1;
+    for(g=0;g<5;g++){
+        if (SHELL[g]!=filename[g]){ 
+            is_shell = 0;
+            break;}
+    }
+    if(shell_count >=3 && is_shell==1){
+        return 0;
+    }
+    
+    if (is_shell==1){
+        shell_count = shell_count + 1;
+    }
 
+    
 
     if(read_dentry_by_name((uint8_t*)filename,&tar_dentry)==FAIL){//check if it is a file in file system
         return FAIL;
@@ -274,6 +296,13 @@ int32_t execute(const uint8_t* command){
     current_PCB->pid=new_pid;
     current_PCB->parent_pid=new_pid-1;
     current_PCB->tss_esp0=(uint32_t)current_PCB +KERNAL_STACK_SIZE-avoid_page_fault_fence;
+    if(is_shell == 1){
+        current_PCB->shell_indicator=1;
+    }
+    else{
+        current_PCB->shell_indicator=0;
+    }
+    
 
 
     //prepare for "context switch"

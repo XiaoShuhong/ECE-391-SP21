@@ -1,55 +1,70 @@
-#define ASM     1
-.global sys_call_handler,invalid,sys_call_done,sys_call_table
+/* sys_call.S, assembly linkage for system call functions */
+
+/* Version 1 ML 2021/4/10 15:09 (include function header and comments)*/
+/*Version 1 ML*/
+.global sys_call_handler, sys_call_invalid, sys_call_done, sys_call_jumptable
+
+
+/* 
+ * sys_call_handler
+ *   Description: dispatcher function for system call function
+ *        Inputs: %eax: sys_call_num,
+ *                %ebx: first argument,
+ *                %ecx: second argument,
+ *                %edx: third argument.
+ *        Output: None
+ *        Return: -1 for not valid
+ */
 sys_call_handler:
-    # save all reg
-    pushl   %esi
-    pushl   %edi
-    pushl   %esp
+    /* save all registers */
+    pushl %esi
+    pushl %edi
+    pushl %esp
 
-    # pushl all the para
+    /* push parameters */
+    pushl %edx
+    pushl %ecx
+    pushl %ebx
 
-    pushl   %edx
-    pushl   %ecx
-    pushl   %ebx
+    /* check sys_call_num (saved in eax) ?valid */
+    cmpl $1, %eax   /* 1 is the minimum sys_call_num */
+    jb sys_call_invalid
+    cmpl $10, %eax  /* 10 is the maximum sys_call_num */
+    ja sys_call_invalid
 
-    # check whether the sys call number is valid
-    cmp     $1, %eax
-    jl invalid
-    cmp     $10, %eax
-    jg invalid
-
-    # If the sys call number is valid, call the function
-    call *sys_call_table(,%eax,4)
+    /* if valid, call jumptable */
+    call *sys_call_jumptable(,%eax,4)
     jmp sys_call_done
 
-invalid:
-    movl    $-1, %eax
+/* 
+ * sys_call_invalid
+ *   Description: returns -1 for an invalid sys_call number
+ *        Inputs: None
+ *        Output: None
+ *        Return: -1 for not valid
+ */
+sys_call_invalid:
+    movl $-1, %eax  /* if invaild, return -1 */
 
+/* 
+ * sys_call_done
+ *   Description: handler for valid sys_call_num after call sys_call_function
+ *        Inputs: None
+ *        Output: None
+ *        Return: None
+ */
 sys_call_done:
-    # popl all the registers
+    /* pop the registers which we have pushed */
     popl %ebx
     popl %ecx
     popl %edx
     popl %esp
     popl %edi
     popl %esi
-    
-    # need to check sig :
-    # call 
 
     iret
 
-# The sys call table
-sys_call_table:
-    .long   0x0
-    .long   halt
-    .long   execute
-    .long   read
-    .long   write
-    .long   open
-    .long   close
-    .long   getargs
-    .long   vidmap
-    .long   set_handler
-    .long   sigreturn
-
+/* the jumptable for system call */
+sys_call_jumptable:
+    .long 0x0, halt, execute, read, write, open, close, getargs, vidmap, set_handler, sigreturn
+/*Version 1 ML*/

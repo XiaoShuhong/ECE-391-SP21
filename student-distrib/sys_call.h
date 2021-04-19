@@ -3,7 +3,7 @@
 #define _SYS_CALL_H
 
 /*Version 1 ML*/
-void sys_call_handler();
+extern void sys_call_handler();
 /*Version 1 ML*/
 
 #endif

@@ -76,6 +76,7 @@ typedef struct PCB{
     uint32_t ebp;// previous one's ebp
 
     uint8_t* arg_buffer;
+    uint8_t shell_indicator;
 
 
 

@@ -64,3 +64,12 @@ file: system_call.c
 description: after halting a process, we forget to set PCB_array[pid] to NULL. As a result, we will count the halting process as one of running procrssed.
 sol: just set PCB_array[pid] to NULL in the halt function.
 
+/* BUG LOG for CheckPoint 4 */
+BUG 1 2021/4/15 12:55
+file: systemfile.c
+description: This is a bug left in cp2 in function read data, while at cp2 test, every time we read full 4K data so this is not occur, but appear in cp3 demo sysrr excutable grep as it read 1K data every time. The problem is we did not change the offset after each read.
+
+BUG 2 2021/4/17 16:30
+file: system_call.c
+description: When initialize the new 4K page for veido memory, we wrongly set in DLP so user program cannot reach it, cause page fault
+solution: change the page's user/supervisor to 1

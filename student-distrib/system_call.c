@@ -697,7 +697,14 @@ int32_t write(int32_t fd, const void* buf, int32_t nbytes){
 
 
 
-
+/* 
+ * vidmap (uint8_t** screen_start)
+ *   Description: a  vidmap system call
+ *        Inputs: ** screen_start: a ptr to a vedio memory page 
+ *        in virtual which contain a ptr to the video memory in physical
+ *        Output: None
+ *        Return: 
+ */
 int32_t vidmap (uint8_t** screen_start){
     int32_t PD_index = ((int32_t)screen_start) >>offset_22; 
     

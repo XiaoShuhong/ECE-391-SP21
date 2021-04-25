@@ -78,13 +78,18 @@ typedef struct PCB{
     uint8_t* arg_buffer;
     uint8_t shell_indicator;
 
+    uint32_t cur_esp;//cur one' esp
+    uint32_t cur_ebp;//cur one' ebp
 
 
 
 }PCB;
+
+
+
 extern PCB* PCB_array[pcb_array_size];
 extern PCB* current_PCB;
-
+extern int32_t shell_count;
 
 
 int32_t halt (uint8_t status);

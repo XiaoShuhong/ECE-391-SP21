@@ -185,7 +185,7 @@ void entry(unsigned long magic, unsigned long addr) {
     printf("LOAD SHELL...\n");
     clear();
     printf("WELCOME TO OUR OS!\n");
-    execute((uint8_t*)"shell");
+    // execute((uint8_t*)"shell");
     /* Spin (nicely, so we don't chew up cycles) */
     asm volatile (".1: hlt; jmp .1;");
 }

@@ -25,12 +25,17 @@ typedef struct TCB{
     uint32_t video_buff;
 
     /* parameters used for multi-processes control */
-    int32_t current_pid;
+    // int32_t current_pid;
     struct PCB* current_process;
     
     struct TCB* next_terminal;
     int32_t tid;
     int32_t vidmap;
+
+///////////////////////////////////////////////////
+    int32_t running_pid;
+
+
 } TCB;
 
 extern int32_t terminal_read(int32_t fd, void* buf, uint32_t nbytes);
@@ -44,6 +49,10 @@ char line_buffer[LINE_BUFFER_SIZE];
 char terminal_buffer[LINE_BUFFER_SIZE];  
 int32_t buffer_index;
 int32_t terminal_read_flag;
+
+
+extern TCB terminals[max_terminal_number];
+extern int32_t current_terminal_number;
 
 
 #endif

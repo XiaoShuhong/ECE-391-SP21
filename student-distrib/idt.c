@@ -149,7 +149,7 @@ void init_idt(){
     /*Version 3 ZLH*/    
 
 
-    SET_IDT_ENTRY(idt[PIT_IDT_INDEX],);
+    SET_IDT_ENTRY(idt[PIT_IDT_INDEX],pit_interrupt_handler);
     idt[PIT_IDT_INDEX].present=1;
 
 

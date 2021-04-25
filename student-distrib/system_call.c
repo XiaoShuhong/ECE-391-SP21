@@ -150,6 +150,9 @@ int32_t halt (uint8_t status){
         return FAIL;
     }
 
+    //update terminal running number
+    terminals[current_terminal_number].running_pid = current_PCB->parent_pid;
+
     close_file_array(check);
     int32_t parent_esp = current_PCB -> esp;
     int32_t parent_ebp = current_PCB -> ebp;
@@ -164,6 +167,11 @@ int32_t halt (uint8_t status){
     PT_for_video[user_PT_index].p=0;// present set to present
     int32_t PD_entry_index = user_video_start_address >>offset_22; 
     PD[PD_entry_index].k.p=0; // present set to present
+
+
+ 
+
+
     asm volatile(
         "movl %%cr3,%%eax   ;"
         "movl %%eax,%%cr3   ;"
@@ -287,6 +295,8 @@ int32_t execute(const uint8_t* command){
 
     //create new PCB
     create_new_PCB(arg,new_pid);
+
+
     //update current PCB;
     current_PCB=PCB_array[new_pid];
 
@@ -294,7 +304,9 @@ int32_t execute(const uint8_t* command){
 
     //save process information to current_PCB
     current_PCB->pid=new_pid;
-    current_PCB->parent_pid=new_pid-1;
+    current_PCB->parent_pid=terminals[current_terminal_number].running_pid;
+    //update terminal's running_pid
+    terminals[current_terminal_number].running_pid = new_pid;
     current_PCB->tss_esp0=(uint32_t)current_PCB +KERNAL_STACK_SIZE-avoid_page_fault_fence;
     if(is_shell == 1){
         current_PCB->shell_indicator=1;

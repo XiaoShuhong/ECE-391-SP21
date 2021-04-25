@@ -7,6 +7,7 @@
 /*Version 1 LYC*/
 void rtc_interrupt_handler();
 void keyboard_interrupt_handler();
+void pit_interrupt_handler();
 /*Version 1 LYC*/
 
 

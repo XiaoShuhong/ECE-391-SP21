@@ -128,7 +128,7 @@ freq_2_rate(uint32_t freq){
         rate = rate + 1;
         temp = temp >> 1;
     }
-    return rate;  
+    return rate-1;  
 }
 
 /*

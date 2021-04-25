@@ -148,6 +148,11 @@ void init_idt(){
     idt[SYSTEM_IDT_INDEX].dpl = 3;
     /*Version 3 ZLH*/    
 
+
+    SET_IDT_ENTRY(idt[PIT_IDT_INDEX],);
+    idt[PIT_IDT_INDEX].present=1;
+
+
     // set the special case
     lidt(idt_desc_ptr);
     sti();

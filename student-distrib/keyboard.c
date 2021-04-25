@@ -33,6 +33,9 @@
 #define CAPSLOCK_RELEASED 0xBA
 #define ALT_PRESSED 0x38
 #define ALT_RELEASED 0xB8
+#define F1  0x3B
+#define F2  0x3C
+#define F3  0x3D
 #define ESC 0x01
 #define TAB_PRESSED 0x0F
 
@@ -109,6 +112,7 @@ uint8_t Ctrl_Buffer = 0;
 uint8_t Shift_Buffer = 0;
 uint8_t CapsLock_Buffer = 0;
 uint8_t Backspace_Buffer = 0;
+uint8_t Alt_Buffer = 0;
 /* Define the state buffer to record the state of CapsLock */
 /* 0 is lowercases, 1 is capitals*/
 uint8_t CapsLock_state = 0;
@@ -249,8 +253,19 @@ int32_t special_scancode_handler(uint8_t scan_code){
             CapsLock_state = 1 - CapsLock_state; // change the state, if 0, change to 1, if 1, change to 0.
             return 1;
         case ALT_PRESSED:
+            Alt_Buffer = 1;
             return 1;
         case ALT_RELEASED:
+            Alt_Buffer = 0;
+            return 1;
+        case F1:
+            if(Alt_Buffer==1){switch_terminal(0);}
+            return 1;
+        case F2:
+            if(Alt_Buffer==1){switch_terminal(1);}
+            return 1;
+        case F3:
+            if(Alt_Buffer==1){switch_terminal(2);}
             return 1;
         case ESC:
             return 1;

@@ -131,6 +131,58 @@ void add_buffer(uint8_t key){
 
 
 
+TCB terminals[max_terminal_number];
+int32_t current_terminal_number = 0;
+
+
+
+int32_t
+init_terminal_structure(){
+    int32_t i; // index loop;
+    for(i=0; i<max_terminal_number; i++){
+        terminals[i].stdin_enable = 0;
+        terminals[i].buffer_index = 0;
+        terminals[i].cursor_x = 0;
+        terminals[i].cursor_y = 0;
+        terminals[i].current_pid = -1;
+        terminals[i].current_process = NULL;
+        terminals[i].tid = i;
+        terminals[i].next_terminal = &terminals[(i+1)%max_terminal_number];
+        terminals[i].vidmap = 0;
+    }
+}
+
+int32_t
+switch_terminal(int32_t terminal_number){
+
+    /* if the terminal is already the terminal_number th terminal, return -1 */
+    if (terminal_number == current_terminal_number){
+        return FAIL;
+    }
+
+    /* from the terminals table, get the current and new terminal */
+    TCB* current_terminal_pointer = &terminals[current_terminal_number];
+    TCB* new_terminal_pointer = &terminals[terminal_number];
+
+    /* save the buffer index*/
+    current_terminal_pointer->buffer_index = buffer_index;
+
+    /* load the new terminal's information */
+    buffer_index = new_terminal_pointer->buffer_index;
+    *(line_buffer) = new_terminal_pointer->line_buffer;
+
+    screen_x = new_terminal_pointer->cursor_x;
+    screen_y = new_terminal_pointer->cursor_y;
+    update_cursor(screen_x, screen_y);
+    
+    /* switch the video memory */
+    current_terminal_number = terminal_number;
+
+
+}
+
+
+
 
 
 

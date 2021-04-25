@@ -12,6 +12,26 @@
 #define FAIL -1
 #define SUCCESS 0
 // #define EMPTY '\0'
+#define max_terminal_number 3
+
+
+typedef struct TCB{
+    
+    char line_buffer[LINE_BUFFER_SIZE];
+    volatile uint8_t stdin_enable;
+    uint8_t buffer_index;
+    int cursor_x;
+    int cursor_y;
+    uint32_t video_buff;
+
+    /* parameters used for multi-processes control */
+    int32_t current_pid;
+    struct PCB* current_process;
+    
+    struct TCB* next_terminal;
+    int32_t tid;
+    int32_t vidmap;
+} TCB;
 
 extern int32_t terminal_read(int32_t fd, void* buf, uint32_t nbytes);
 extern int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes);

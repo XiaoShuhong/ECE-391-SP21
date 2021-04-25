@@ -10,6 +10,7 @@ void PAGE_ON();
 PDE PD[entry_num];// __attribute__((aligned (four_k)));
 PTE PT[entry_num];
 PTE PT_for_video[entry_num];
+
 /*
 init_page:
 initial page directory entry for the first 4MB with kb form and second 4MB with MB form for kernel
@@ -71,6 +72,46 @@ void init_page(void){
             PT[i].avail=0;//all 32 bits are available to software
             PT[i].ptb_add=video_memory>>shift_twelve;
         }
+        if (i==video_buffer_terminal_1>>shift_twelve){
+            PT[i].p=1;// present set to present
+            PT[i].r_w=1;//// enable write and read
+            PT[i].u_s=0; //set supervisor priviledge level
+            PT[i].pwt=0; // make write cache enable
+            PT[i].pcd=0;// make page table to be cached
+            PT[i].a=0; //initially set to 0, wait user to visit for first time
+            PT[i].d=1; //set when point to page 
+            PT[i].pat=0;//set 0 fro processor not support
+            PT[i].g=0;//frequently use, global page
+            PT[i].avail=0;//all 32 bits are available to software
+            PT[i].ptb_add=video_buffer_terminal_1>>shift_twelve;
+        }
+        if (i==video_buffer_terminal_2>>shift_twelve){
+            PT[i].p=1;// present set to present
+            PT[i].r_w=1;//// enable write and read
+            PT[i].u_s=0; //set supervisor priviledge level
+            PT[i].pwt=0; // make write cache enable
+            PT[i].pcd=0;// make page table to be cached
+            PT[i].a=0; //initially set to 0, wait user to visit for first time
+            PT[i].d=1; //set when point to page 
+            PT[i].pat=0;//set 0 fro processor not support
+            PT[i].g=0;//frequently use, global page
+            PT[i].avail=0;//all 32 bits are available to software
+            PT[i].ptb_add=video_buffer_terminal_2>>shift_twelve;
+        }
+        if (i==video_buffer_terminal_3>>shift_twelve){
+            PT[i].p=1;// present set to present
+            PT[i].r_w=1;//// enable write and read
+            PT[i].u_s=0; //set supervisor priviledge level
+            PT[i].pwt=0; // make write cache enable
+            PT[i].pcd=0;// make page table to be cached
+            PT[i].a=0; //initially set to 0, wait user to visit for first time
+            PT[i].d=1; //set when point to page 
+            PT[i].pat=0;//set 0 fro processor not support
+            PT[i].g=0;//frequently use, global page
+            PT[i].avail=0;//all 32 bits are available to software
+            PT[i].ptb_add=video_buffer_terminal_3>>shift_twelve;
+        }
+
         else{
             PT[i].p=0;
         }

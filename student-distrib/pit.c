@@ -11,6 +11,9 @@
 #include "terminal.h"
 
 
+uint32_t cur_running_terminal=0;
+
+
 /* void init_pit(void)
  * Description: init the periodic interval timer device and set the frequency to 100Hz
  * Inputs: None
@@ -216,12 +219,6 @@ int32_t init_shells(const uint8_t* command){
     }
     
 
-
-
-
-
-
-
     //prepare for "context switch"
     uint32_t SS=USER_DS;
     uint32_t ESP=user_page_start_address + user_stack_size -avoid_page_fault_fence;//bottom of virtual address
@@ -271,6 +268,32 @@ int32_t init_shells(const uint8_t* command){
 
 
 void process_switch(void){
+    uint32_t next_running_terminal = (cur_running_terminal + 1)%3;
+    uint32_t next_pid = terminals[next_running_terminal].running_pid;
     uint32_t cur_pid = current_PCB->pid;
+    PCB* cur_process = PCB_array[cur_pid];
+    PCB* next_process = PCB_array[next_pid];
+
+
+    //save cur process's esp, ebp
+    asm volatile("movl %%esp, %0":"=r" (cur_process->cur_esp));
+    asm volatile("movl %%ebp, %0":"=r" (cur_process->cur_ebp));
+
+
+
+    //change TSS's esp0
+    tss.esp0 = (uint32_t)next_process +KERNAL_STACK_SIZE-avoid_page_fault_fence;
+    set_user_page(next_pid);
+    
+    //load next_process's esp ebp
+    asm volatile ("         \n\
+        movl %0, %%esp      \n\
+        movl %1, %%ebp      \n\
+        "
+        :
+        : "r" (next_process->cur_esp), "r" (next_process->cur_ebp)
+        : "memory"
+    );  
+
     
 }

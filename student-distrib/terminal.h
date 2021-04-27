@@ -54,6 +54,7 @@ int32_t terminal_read_flag;
 
 extern TCB terminals[max_terminal_number];
 extern int32_t current_terminal_number;
+extern int32_t previous_terminal_number;
 
 
 #endif

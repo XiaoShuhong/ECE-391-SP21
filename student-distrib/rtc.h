@@ -24,6 +24,8 @@
 #define THE_F                    0x0F
 #define REVERSE_F                0xF0
 #define two_HZ                   2
+#define thirtytwo_HZ             32
+#define max_HZ                   1024
 
 
 void init_rtc();

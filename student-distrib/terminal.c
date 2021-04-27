@@ -137,7 +137,7 @@ void add_buffer(uint8_t key){
 
 TCB terminals[max_terminal_number];
 int32_t current_terminal_number = 0;
-
+int32_t previous_terminal_number = 0;
 
 
 int32_t
@@ -162,13 +162,11 @@ int32_t
 switch_terminal(int32_t terminal_number){
 
 
-    screen_x = 0;
-    screen_y = 0;
+    int32_t _screen_x = 0;
+    int32_t _screen_y = 0;
 
-    printf("To terminal # %d",terminal_number);
 
     int i; // loop index
-    int32_t previous_terminal_number;
     /* if the terminal is already the terminal_number th terminal, return -1 */
     if (terminal_number == current_terminal_number){
         return FAIL;
@@ -196,25 +194,34 @@ switch_terminal(int32_t terminal_number){
     previous_terminal_number = current_terminal_number;
     current_terminal_number = terminal_number;
 
-    //
-    // if(current_terminal_number==scheduled_index){
-    //     PT_for_video[user_PT_index].ptb_add=video_memory>>shift_twelve;
-    //     flush_TLB();
-    //     PT[video_memory>>shift_twelve].ptb_add=video_memory>>shift_twelve;
-    //     flush_TLB();
+    
+    if(current_terminal_number==scheduled_index){
+        PT_for_video[user_PT_index].ptb_add=video_memory>>shift_twelve;
+        flush_TLB();
+        // PT[video_memory>>shift_twelve].ptb_add=video_memory>>shift_twelve;
+        // flush_TLB();
 
-    //     memcpy(( void *)(video_memory+four_k*(1+previous_terminal_number)) ,(const void *)backdoor,four_k);
-    //     memcpy(( void *)video_memory,(const void *)(video_memory+four_k*(1+scheduled_index)),four_k);
-    // }
-    // if(current_terminal_number!=scheduled_index){
-    //     memcpy(  ( void *)(video_memory+four_k*(1+previous_terminal_number))  , (const void *)backdoor,four_k);
-    //     memcpy(( void *)backdoor,(const void *)(video_memory+four_k*(1+current_terminal_number)),four_k);
+        memcpy(( void *)(video_memory+four_k*(1+previous_terminal_number)) ,(const void *)backdoor,four_k);
+        memcpy(( void *)video_memory,(const void *)(video_memory+four_k*(1+scheduled_index)),four_k);
+    }
+    if(current_terminal_number!=scheduled_index){
+        memcpy(  ( void *)(video_memory+four_k*(1+previous_terminal_number))  , (const void *)backdoor,four_k);
+        memcpy(( void *)backdoor,(const void *)(video_memory+four_k*(1+current_terminal_number)),four_k);
         
-    //     PT[video_memory>>shift_twelve].ptb_add=(video_memory+four_k*(1+scheduled_index))>>shift_twelve;
-    //     flush_TLB();
-    //     PT_for_video[user_PT_index].ptb_add=(video_memory+four_k*(1+scheduled_index))>>shift_twelve;
-    //     flush_TLB();
-    // }
+        // PT[video_memory>>shift_twelve].ptb_add=video_memory>>shift_twelve;//(video_memory+four_k*(1+current_terminal_number))>>shift_twelve;
+        // flush_TLB();
+        PT_for_video[user_PT_index].ptb_add=(video_memory+four_k*(1+scheduled_index))>>shift_twelve;
+        flush_TLB();
+    }
+
+
+    _screen_x = screen_x;
+    _screen_y = screen_y;
+    screen_x = 0;
+    screen_y = 0;
+    printf("To terminal # %d",terminal_number);
+    screen_x = _screen_x;
+    screen_y = _screen_y;
 
     return SUCCESS;
 }

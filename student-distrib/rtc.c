@@ -173,7 +173,7 @@ set_rtc_rate(uint32_t rate){
 int32_t 
 rtc_open(const uint8_t* filename){
 
-    int32_t rate = freq_2_rate(two_HZ);
+    int32_t rate = freq_2_rate(thirtytwo_HZ);
     set_rtc_rate(rate);
 
     //no interrupt signal

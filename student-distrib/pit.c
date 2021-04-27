@@ -40,11 +40,11 @@ void init_pit(void){
  * Side effects: 
  */
 void pit_handler(void){
-    // cli();
+    cli();
     send_eoi(pit_irq_number);
     // printf("a");
-    //scheduling();
-    // sti();
+    scheduling();
+    sti();
 
 }
 
@@ -228,6 +228,9 @@ int32_t init_shells(const uint8_t* command){
 
 
 void process_switch(void){
+
+    terminals[current_terminal_number].cursor_x = screen_x;
+    terminals[current_terminal_number].cursor_y = screen_y;
     if(PCB_array[0] == NULL || PCB_array[1] == NULL || PCB_array[2] == NULL ){
         if(current_PCB!=NULL){
             asm volatile("movl %%esp, %0":"=r" (current_PCB->cur_esp));

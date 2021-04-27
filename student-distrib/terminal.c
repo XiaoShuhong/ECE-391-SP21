@@ -162,6 +162,11 @@ int32_t
 switch_terminal(int32_t terminal_number){
 
 
+    screen_x = 0;
+    screen_y = 0;
+
+    printf("To terminal # %d",terminal_number);
+
     int i; // loop index
     int32_t previous_terminal_number;
     /* if the terminal is already the terminal_number th terminal, return -1 */
@@ -210,8 +215,7 @@ switch_terminal(int32_t terminal_number){
     //     PT_for_video[user_PT_index].ptb_add=(video_memory+four_k*(1+scheduled_index))>>shift_twelve;
     //     flush_TLB();
     // }
-    printf("terminal change from # %d",previous_terminal_number);
-    printf("to terminal # %d",terminal_number);
+
     return SUCCESS;
 }
 

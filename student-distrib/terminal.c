@@ -161,6 +161,7 @@ init_terminal_structure(){
 int32_t
 switch_terminal(int32_t terminal_number){
 
+
     int i; // loop index
     int32_t previous_terminal_number;
     /* if the terminal is already the terminal_number th terminal, return -1 */
@@ -191,24 +192,26 @@ switch_terminal(int32_t terminal_number){
     current_terminal_number = terminal_number;
 
     //
-    if(current_terminal_number==scheduled_index){
-        PT_for_video[user_PT_index].ptb_add=video_memory>>shift_twelve;
-        flush_TLB();
-        PT[video_memory>>shift_twelve].ptb_add=video_memory>>shift_twelve;
-        flush_TLB();
+    // if(current_terminal_number==scheduled_index){
+    //     PT_for_video[user_PT_index].ptb_add=video_memory>>shift_twelve;
+    //     flush_TLB();
+    //     PT[video_memory>>shift_twelve].ptb_add=video_memory>>shift_twelve;
+    //     flush_TLB();
 
-        memcpy(( void *)(video_memory+four_k*(1+previous_terminal_number)) ,(const void *)backdoor,four_k);
-        memcpy(( void *)video_memory,(const void *)(video_memory+four_k*(1+scheduled_index)),four_k);
-    }
-    if(current_terminal_number!=scheduled_index){
-        memcpy(  ( void *)(video_memory+four_k*(1+previous_terminal_number))  , (const void *)backdoor,four_k);
-        memcpy(( void *)backdoor,(const void *)(video_memory+four_k*(1+current_terminal_number)),four_k);
+    //     memcpy(( void *)(video_memory+four_k*(1+previous_terminal_number)) ,(const void *)backdoor,four_k);
+    //     memcpy(( void *)video_memory,(const void *)(video_memory+four_k*(1+scheduled_index)),four_k);
+    // }
+    // if(current_terminal_number!=scheduled_index){
+    //     memcpy(  ( void *)(video_memory+four_k*(1+previous_terminal_number))  , (const void *)backdoor,four_k);
+    //     memcpy(( void *)backdoor,(const void *)(video_memory+four_k*(1+current_terminal_number)),four_k);
         
-        PT[video_memory>>shift_twelve].ptb_add=(video_memory+four_k*(1+scheduled_index))>>shift_twelve;
-        flush_TLB();
-        PT_for_video[user_PT_index].ptb_add=(video_memory+four_k*(1+scheduled_index))>>shift_twelve;
-        flush_TLB();
-    }
+    //     PT[video_memory>>shift_twelve].ptb_add=(video_memory+four_k*(1+scheduled_index))>>shift_twelve;
+    //     flush_TLB();
+    //     PT_for_video[user_PT_index].ptb_add=(video_memory+four_k*(1+scheduled_index))>>shift_twelve;
+    //     flush_TLB();
+    // }
+    printf("terminal change from # %d",previous_terminal_number);
+    printf("to terminal # %d",terminal_number);
     return SUCCESS;
 }
 

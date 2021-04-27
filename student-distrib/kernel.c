@@ -161,12 +161,16 @@ void entry(unsigned long magic, unsigned long addr) {
 
     /*Version 1 LYC*/
     // init the rtc
-    init_rtc();
     init_keyboard();
+   
     init_page();
     init_sysfile();
-    init_fop_table();
+    init_rtc();
     init_pit();
+    init_fop_table();
+    
+
+    
     /*Version 1 LYC*/
 
     /* Initialize devices, memory, filesystem, enable device interrupts on the

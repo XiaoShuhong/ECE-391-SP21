@@ -7,7 +7,6 @@
 #include "rtc.h"
 #include "lib.h"
 #include "i8259.h"
-#include "system_call.h"
 
 
 //copy from lib.c
@@ -19,7 +18,7 @@
 #define TERMINAL_BAR 5
 
 /*Version 2 ML*/
-// static volatile int interrupt_flag = 0;
+static volatile int interrupt_flag = 0;
 /*Version 2 ML*/
 
 /* init_rtc()
@@ -53,7 +52,7 @@ void init_rtc(){
 
     /*Version 2 ML*/
     //no interrupt signal
-    // interrupt_flag = 0;
+    interrupt_flag = 0;
     /*Version 2 ML*/
 
     //enable the irq8 on pic
@@ -76,20 +75,6 @@ void __rtc_interrupt_handler__(){
     
     // test_interrupts();
 
-    /*code for multi-process*/
-    int32_t pid;
-    int32_t fd;
-    for (pid=0; pid<pcb_array_size; pid++){
-        if (PCB_array[pid] == NULL){ continue; }
-        if (PCB_array[pid]->rtc_count_val == 0){ continue; }
-
-        for (fd=0; fd<MAX_FD_NUM; fd++){
-            if (PCB_array[pid]->file_array[fd].inode_index == -1){
-                PCB_array[pid]->file_array[fd].file_position++;
-                break;
-            }
-        }
-    }
 
 
 
@@ -102,7 +87,7 @@ void __rtc_interrupt_handler__(){
 
    /*Version 2 ML*/
     //turn on interrupt signal
-    // interrupt_flag = 1;
+    interrupt_flag = 1;
     /*Version 2 ML*/
 
     send_eoi(rtc_irq_number); //send EOI to tell we have dealed with the interrupt handler
@@ -143,7 +128,7 @@ freq_2_rate(uint32_t freq){
         rate = rate + 1;
         temp = temp >> 1;
     }
-    return rate-1;  
+    return rate;  
 }
 
 /*
@@ -191,11 +176,8 @@ rtc_open(const uint8_t* filename){
     int32_t rate = freq_2_rate(two_HZ);
     set_rtc_rate(rate);
 
-
-    current_PCB->rtc_count_val = max_HZ/two_HZ;
-
     //no interrupt signal
-    // interrupt_flag = 0;
+    interrupt_flag = 0;
     return SUCCESS;
 }
 
@@ -208,8 +190,6 @@ rtc_open(const uint8_t* filename){
  */
 int32_t
 rtc_close(int32_t fd){
-    current_PCB->rtc_count_val = 0;
-    current_PCB->file_array[fd].file_position = 0;
     return SUCCESS;
 }
 
@@ -226,13 +206,9 @@ rtc_close(int32_t fd){
 int32_t
 rtc_read(int32_t fd, void* buf, uint32_t nbytes)
 {
-	// interrupt_flag = 0;
-	// while(interrupt_flag == 0);
-	// interrupt_flag = 0;
-    int32_t _file_position = current_PCB->file_array[fd].file_position;
-    int32_t _rtc_count_val = current_PCB->rtc_count_val;
-    while(_file_position < _rtc_count_val){}
-    // _file_position = 0;
+	interrupt_flag = 0;
+	while(interrupt_flag == 0);
+	interrupt_flag = 0;
 	return SUCCESS;
 }
 
@@ -268,9 +244,7 @@ rtc_write(int32_t fd, const void* buf, int32_t nbytes){
 
     set_rtc_rate(rate);
 
-    // interrupt_flag = 0;
-
-    current_PCB->rtc_count_val = max_HZ/freq;
+    interrupt_flag = 0;
     return SUCCESS;
 
 }

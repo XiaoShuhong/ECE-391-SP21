@@ -24,10 +24,11 @@
 
 void init_pit(void){
     outb(PIT_MODE, PIT_COMMAND_PORT);
-    outb((uint8_t)LATCH && 0xff, PIT_DATA_PORT_CHANNEL0);
-    outb((uint8_t)LATCH >> 8, PIT_DATA_PORT_CHANNEL0);
+    outb((uint8_t)(LATCH && 0xff), PIT_DATA_PORT_CHANNEL0);
+    outb((uint8_t)(LATCH >> 8), PIT_DATA_PORT_CHANNEL0);
 
     enable_irq(pit_irq_number);
+   
 }
 
 
@@ -39,10 +40,11 @@ void init_pit(void){
  * Side effects: 
  */
 void pit_handler(void){
-    cli();
+    // cli();
     send_eoi(pit_irq_number);
-    scheduling();
-    sti();
+    // printf("a");
+    //scheduling();
+    // sti();
 
 }
 
@@ -86,7 +88,7 @@ void process_video_switch(void){
 }
 
 
-int32_t init_shells(const uint8_t* command){
+int32_t init_shells(const uint8_t* command){  
     cli(); //unable interupt
     int8_t filename[MAX_FILE_LEN];
     int8_t arg[BUF_SIZE];
@@ -231,7 +233,6 @@ void process_switch(void){
             asm volatile("movl %%esp, %0":"=r" (current_PCB->cur_esp));
             asm volatile("movl %%ebp, %0":"=r" (current_PCB->cur_ebp));    
         }
-        
         init_shells((uint8_t*)"shell"); 
     }
 
@@ -243,6 +244,7 @@ void process_switch(void){
     PCB* next_process = PCB_array[next_pid];
 
     scheduled_index = (scheduled_index + 1) % 3;
+    current_PCB = PCB_array[next_pid];
     //save cur process's esp, ebp
     asm volatile("movl %%esp, %0":"=r" (cur_process->cur_esp));
     asm volatile("movl %%ebp, %0":"=r" (cur_process->cur_ebp));
@@ -262,7 +264,12 @@ void process_switch(void){
         : "memory"
     );  
 
-//change EIP
+
+//change EIP：
+    asm volatile(
+        "leave  ;"
+        "ret    ;"
+    );
     
 }
 

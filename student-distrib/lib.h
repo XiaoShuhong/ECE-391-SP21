@@ -27,6 +27,9 @@ void update_cursor(int32_t x, int32_t y);
 void backspace(void);
 /*Version 2 ML*/
 
+extern int screen_x;
+extern int screen_y;
+
 void test_interrupts(void);
 
 

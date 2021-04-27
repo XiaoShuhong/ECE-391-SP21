@@ -5,9 +5,10 @@
 #include "page.h"
 #include "lib.h"
 #include "rtc.h"
+#include "pit.h"
 
 PCB* PCB_array[pcb_array_size]={NULL,NULL,NULL,NULL,NULL,NULL};
-PCB* current_PCB;
+PCB* current_PCB = NULL;
 int32_t shell_count=0;
 
 file_op_table fop_table[NUM_DRIVERS];
@@ -754,7 +755,13 @@ int32_t vidmap (uint8_t** screen_start){
     PT_for_video[user_PT_index].pat=0;//set 0 fro processor not support
     PT_for_video[user_PT_index].g=0;//frequently use, global page
     PT_for_video[user_PT_index].avail=0;//all 32 bits are available to software
-    PT_for_video[user_PT_index].ptb_add=video_memory>>shift_twelve;
+    if(scheduled_index!=current_terminal_number){
+        PT_for_video[user_PT_index].ptb_add=(video_memory+four_k*(1+scheduled_index))>>shift_twelve;
+    }
+    if(scheduled_index==current_terminal_number){
+        PT_for_video[user_PT_index].ptb_add=video_memory>>shift_twelve;
+    }
+    
 
 
     

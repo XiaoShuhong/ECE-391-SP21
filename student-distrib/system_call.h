@@ -81,7 +81,7 @@ typedef struct PCB{
     uint32_t cur_esp;//cur one' esp
     uint32_t cur_ebp;//cur one' ebp
 
-
+    int32_t rtc_count_val;
 
 }PCB;
 

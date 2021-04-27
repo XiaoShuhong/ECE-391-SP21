@@ -5,6 +5,7 @@
 #define _KEYBOARD_H
 
 #include "types.h"
+#include "terminal.h"
 
 void init_keyboard(void);
 

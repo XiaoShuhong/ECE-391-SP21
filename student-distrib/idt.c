@@ -138,8 +138,10 @@ void init_idt(){
     /*Version 2 LYC*/
     SET_IDT_ENTRY(idt[RTC_IDT_INDEX],rtc_interrupt_handler);
     idt[RTC_IDT_INDEX].present=1;
+    idt[RTC_IDT_INDEX].reserved3=0;
     SET_IDT_ENTRY(idt[KEYBOARD_IDT_INDEX],keyboard_interrupt_handler);
     idt[KEYBOARD_IDT_INDEX].present=1;
+    idt[RTC_IDT_INDEX].reserved3=0;
     /*Version 2 LYC*/
     
     /*Version 3 ZLH*/
@@ -151,6 +153,7 @@ void init_idt(){
 
     SET_IDT_ENTRY(idt[PIT_IDT_INDEX],pit_interrupt_handler);
     idt[PIT_IDT_INDEX].present=1;
+    idt[RTC_IDT_INDEX].reserved3=0;
 
 
     // set the special case

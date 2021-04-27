@@ -14,6 +14,7 @@
 // #define EMPTY '\0'
 #define max_terminal_number 3
 
+int32_t switch_terminal(int32_t terminal_number);
 
 typedef struct TCB{
     

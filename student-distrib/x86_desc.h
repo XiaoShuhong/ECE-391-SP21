@@ -184,6 +184,7 @@ extern x86_desc_t idt_desc_ptr;
 #define video_buffer_terminal_1 0xB9000
 #define video_buffer_terminal_2 0xBA000
 #define video_buffer_terminal_3 0xBB000
+#define backdoor 0xBC000
 
 // build a page directory entry to a 4k page table
 typedef union four_k_PDE{

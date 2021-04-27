@@ -11,7 +11,7 @@
 #include "terminal.h"
 
 
-uint32_t cur_running_terminal=0;
+ uint32_t scheduled_index=2;
 
 
 /* void init_pit(void)
@@ -22,8 +22,7 @@ uint32_t cur_running_terminal=0;
  * Side effects: Allow the pit interrupts with the frequency at 100Hz
  */
 
-void
-init_pit(void){
+void init_pit(void){
     outb(PIT_MODE, PIT_COMMAND_PORT);
     outb((uint8_t)LATCH && 0xff, PIT_DATA_PORT_CHANNEL0);
     outb((uint8_t)LATCH >> 8, PIT_DATA_PORT_CHANNEL0);
@@ -39,40 +38,62 @@ init_pit(void){
  * Return value: None
  * Side effects: 
  */
-void
-pit_handler(void){
+void pit_handler(void){
+    cli();
     send_eoi(pit_irq_number);
     scheduling();
+    sti();
 
 }
 
 
-void 
-scheduling(void){
-    if(PCB_array[0] == NULL && PCB_array[1] == NULL && PCB_array[2] == NULL ){
-        init_shells((uint8_t*)"shell"); 
-    }
+void scheduling(void){
+    // if(PCB_array[0] == NULL && PCB_array[1] == NULL && PCB_array[2] == NULL ){
+    //     init_shells((uint8_t*)"shell"); 
+    // }
+    process_video_switch();
     process_switch();
+
+
+}
+
+void flush_TLB(void){
+    asm volatile(
+        "movl %%cr3,%%eax   ;"
+        "movl %%eax,%%cr3   ;"
+        : : : "eax","cc"
+    );
 }
 
 
 
 
-
-
+void process_video_switch(void){
+    uint32_t next_running_terminal = (scheduled_index + 1)%3; 
+    if(current_terminal_number!=next_running_terminal){
+        PT[video_memory>>shift_twelve].ptb_add=(video_memory+four_k*(1+next_running_terminal))>>shift_twelve;
+        flush_TLB();
+        PT_for_video[user_PT_index].ptb_add=(video_memory+four_k*(1+scheduled_index))>>shift_twelve;
+        flush_TLB();
+    }
+    if(current_terminal_number==next_running_terminal){
+        PT_for_video[user_PT_index].ptb_add=video_memory>>shift_twelve;
+        flush_TLB();
+        PT[video_memory>>shift_twelve].ptb_add=video_memory>>shift_twelve;
+        flush_TLB();
+        memcpy(( void *)video_memory,(const void *)(video_memory+four_k*(1+next_running_terminal)),(uint32_t)four_k);
+    }
+}
 
 
 int32_t init_shells(const uint8_t* command){
-
     cli(); //unable interupt
     int8_t filename[MAX_FILE_LEN];
     int8_t arg[BUF_SIZE];
     uint8_t ELF_buf[ELF_buf_size];
 
     dentry  tar_dentry;
-    int32_t new_pid0=-1;
-    int32_t new_pid1=-1;
-    int32_t new_pid2=-1; //the idx of pcb_array
+    int32_t new_pid=-1; //the idx of pcb_array
     int32_t i=0;
     if(command==NULL){
         return FAIL;
@@ -113,80 +134,39 @@ int32_t init_shells(const uint8_t* command){
 
     for(i=0;i<pcb_array_size;i++){   //map new process to a free pcb position
         if(PCB_array[i]==NULL){
-            new_pid0=i;//new_pid is the idx of the PCB_array
+            new_pid=i;//new_pid is the idx of the PCB_array
             break;
         }
     }
 
-    for(i=0;i<pcb_array_size;i++){   //map new process to a free pcb position
-        if(PCB_array[i]==NULL){
-            new_pid1=i;//new_pid is the idx of the PCB_array
-            break;
-        }
-    }
-
-    for(i=0;i<pcb_array_size;i++){   //map new process to a free pcb position
-        if(PCB_array[i]==NULL){
-            new_pid2=i;//new_pid is the idx of the PCB_array
-            break;
-        }
-    }
-
-
-    if(new_pid0==-1){
+    if(new_pid==-1){
         return FAIL;
     }
 
-    if(new_pid1==-1){
-        return FAIL;
-    }
+    set_user_page(new_pid);
 
-    if(new_pid2==-1){
-        return FAIL;
-    }
-
-    
-    uint32_t length= ((inode*)(inode_men_start+tar_dentry.inode_num))->length;  
-    set_user_page(new_pid2);
     //copy file data to newly allocated page 
+    uint32_t length= ((inode*)(inode_men_start+tar_dentry.inode_num))->length;
+    //uint8_t data_buf[length];
     if(read_data(tar_dentry.inode_num, 0, (uint8_t*)file_data_base_add ,length)==FAIL){
         return FAIL;
     }
-    set_user_page(new_pid1);
-   if(read_data(tar_dentry.inode_num, 0, (uint8_t*)file_data_base_add ,length)==FAIL){
-        return FAIL;
-    }
-    set_user_page(new_pid0);
-   if(read_data(tar_dentry.inode_num, 0, (uint8_t*)file_data_base_add ,length)==FAIL){
-        return FAIL;
-    }
-
-
-
-
-
-   
+    //memcpy((void*)file_data_base_add, (const void*)data_buf,length );
 
     //create new PCB
-    create_new_PCB(arg,new_pid0);
-    create_new_PCB(arg,new_pid1);
-    create_new_PCB(arg,new_pid2);
-
-    //update terminal's running_pid
-    terminals[0].running_pid = 0;
-    terminals[1].running_pid = 1;
-    terminals[2].running_pid = 2;
-
+    create_new_PCB(arg,new_pid);
 
 
     //update current PCB;
-    current_PCB=PCB_array[new_pid0];
+    current_PCB=PCB_array[new_pid];
 
 
 
     //save process information to current_PCB
-    current_PCB->pid=new_pid0;
-    current_PCB->parent_pid=-1;
+    current_PCB->pid=new_pid;
+    current_PCB->parent_pid=terminals[new_pid].running_pid;
+    //update terminal's running_pid
+    terminals[new_pid].running_pid = new_pid;
     current_PCB->tss_esp0=(uint32_t)current_PCB +KERNAL_STACK_SIZE-avoid_page_fault_fence;
     if(is_shell == 1){
         current_PCB->shell_indicator=1;
@@ -194,30 +174,8 @@ int32_t init_shells(const uint8_t* command){
     else{
         current_PCB->shell_indicator=0;
     }
-
-
-
-    PCB_array[new_pid1]->pid=new_pid1;
-    PCB_array[new_pid1]->parent_pid=-1;
-    PCB_array[new_pid1]->tss_esp0=(uint32_t)PCB_array[new_pid1] +KERNAL_STACK_SIZE-avoid_page_fault_fence;
-    if(is_shell == 1){
-        PCB_array[new_pid1]->shell_indicator=1;
-    }
-    else{
-        PCB_array[new_pid1]->shell_indicator=0;
-    }
-
-
-    PCB_array[new_pid2]->pid=new_pid2;
-    PCB_array[new_pid2]->parent_pid=-1;
-    PCB_array[new_pid2]->tss_esp0=(uint32_t)PCB_array[new_pid2] +KERNAL_STACK_SIZE-avoid_page_fault_fence;
-    if(is_shell == 1){
-        PCB_array[new_pid2]->shell_indicator=1;
-    }
-    else{
-        PCB_array[new_pid2]->shell_indicator=0;
-    }
     
+
 
     //prepare for "context switch"
     uint32_t SS=USER_DS;
@@ -268,18 +226,27 @@ int32_t init_shells(const uint8_t* command){
 
 
 void process_switch(void){
-    uint32_t next_running_terminal = (cur_running_terminal + 1)%3;
+    if(PCB_array[0] == NULL || PCB_array[1] == NULL || PCB_array[2] == NULL ){
+        if(current_PCB!=NULL){
+            asm volatile("movl %%esp, %0":"=r" (current_PCB->cur_esp));
+            asm volatile("movl %%ebp, %0":"=r" (current_PCB->cur_ebp));    
+        }
+        
+        init_shells((uint8_t*)"shell"); 
+    }
+
+
+    uint32_t next_running_terminal = (scheduled_index + 1)%3; 
     uint32_t next_pid = terminals[next_running_terminal].running_pid;
     uint32_t cur_pid = current_PCB->pid;
     PCB* cur_process = PCB_array[cur_pid];
     PCB* next_process = PCB_array[next_pid];
 
-
+    scheduled_index = (scheduled_index + 1) % 3;
     //save cur process's esp, ebp
     asm volatile("movl %%esp, %0":"=r" (cur_process->cur_esp));
     asm volatile("movl %%ebp, %0":"=r" (cur_process->cur_ebp));
-
-
+  
 
     //change TSS's esp0
     tss.esp0 = (uint32_t)next_process +KERNAL_STACK_SIZE-avoid_page_fault_fence;
@@ -295,5 +262,9 @@ void process_switch(void){
         : "memory"
     );  
 
+//change EIP
     
 }
+
+
+

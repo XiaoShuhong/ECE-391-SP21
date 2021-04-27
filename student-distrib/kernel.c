@@ -15,6 +15,7 @@
 #include "page.h"
 #include "systemfile.h"
 #include "system_call.h"
+#include"pit.h"
 // #include "idt.h"
 #define RUN_TESTS
 
@@ -165,6 +166,7 @@ void entry(unsigned long magic, unsigned long addr) {
     init_page();
     init_sysfile();
     init_fop_table();
+    init_pit();
     /*Version 1 LYC*/
 
     /* Initialize devices, memory, filesystem, enable device interrupts on the

@@ -13,6 +13,7 @@
 #include "keyboard.h"
 #include "types.h"
 #include "terminal.h"
+#include "pit.h"
 
 
 #define KEYBOARD_IRQ 1
@@ -144,10 +145,18 @@ init_keyboard(void){
 /*Version 3 ML*/
 void
 keyboard_handler(void){
+    int i;
     cli();
     send_eoi(KEYBOARD_IRQ); // send the signal of end_of_interrupt. This instruction must be here!!! Otherwise the eoi signal will not be sent, other interrupts will not be allowed to happen
     uint8_t scan_code = inb(KEYBOARD_PORT_DATA) & LOW_EIGHT_BITS;
     uint8_t keyprinted = key2ascii_map[scan_code][0]; // get the key which we want to printed, init to the lowercase
+    
+    char line_buffer[LINE_BUFFER_SIZE];
+    for (i=0; i<LINE_BUFFER_SIZE; i++){
+        line_buffer[i] = terminals[current_terminal_number].line_buffer[i];
+    }
+
+    int buffer_index = terminals[current_terminal_number]._buffer_index;
 
     /* for the special scancode, return */
     if (special_scancode_handler(scan_code) == 1) {
@@ -171,7 +180,9 @@ keyboard_handler(void){
                 return;
             }
             buffer_index--;
-            line_buffer[buffer_index] = '\0'; 
+            terminals[current_terminal_number]._buffer_index--;
+            line_buffer[buffer_index] = '\0';
+            terminals[current_terminal_number].line_buffer[buffer_index] = '\0'; 
             backspace();
             return;
         }
@@ -183,9 +194,15 @@ keyboard_handler(void){
     /*Version 4 ZLH*/
         if(keyprinted == '\n'){
             putc(keyprinted);
-            add_buffer(keyprinted);
+            add_buffer(line_buffer,keyprinted,buffer_index);
+            buffer_index++;
+            add_buffer(terminals[current_terminal_number].line_buffer,keyprinted,terminals[current_terminal_number]._buffer_index);
+            terminals[current_terminal_number]._buffer_index++;
             if(terminal_read_flag == 0){ //This is used to solve the problem of terminal read when pressing enter
-                clear_buffer();
+                clear_buffer(line_buffer);
+                buffer_index = 0;
+                clear_buffer(terminals[current_terminal_number].line_buffer);
+                terminals[current_terminal_number]._buffer_index = 0;
             }
     /*Version 4 ZLH*/
             return;
@@ -202,7 +219,11 @@ keyboard_handler(void){
                keyprinted = key2ascii_map[scan_code][1]; 
             }
         }
-        add_buffer(keyprinted);
+        add_buffer(line_buffer,keyprinted,buffer_index);
+        buffer_index++;
+        add_buffer(terminals[current_terminal_number].line_buffer,keyprinted,terminals[current_terminal_number]._buffer_index);
+        terminals[current_terminal_number]._buffer_index++;
+
         putc(keyprinted);
      // use to test
     }
@@ -282,10 +303,19 @@ int32_t special_scancode_handler(uint8_t scan_code){
 
 int32_t copy_buffer(void* buf){
     int32_t num;
-    while(line_buffer[buffer_index - 1] != '\n'){}
+    int i;
+    while(terminals[scheduled_index].line_buffer[terminals[scheduled_index]._buffer_index - 1] != '\n'){}
+    int buffer_index = terminals[scheduled_index]._buffer_index;
     num = buffer_index;
+
+    char line_buffer[LINE_BUFFER_SIZE];
+    for (i=0; i<LINE_BUFFER_SIZE; i++){
+        line_buffer[i] = terminals[current_terminal_number].line_buffer[i];
+    }
     strncpy((int8_t*) buf, line_buffer, buffer_index);
-    clear_buffer();
+    clear_buffer(terminals[scheduled_index].line_buffer);
+    terminals[scheduled_index]._buffer_index= 0;
+
     terminal_read_flag = 0;
     return num;
 }

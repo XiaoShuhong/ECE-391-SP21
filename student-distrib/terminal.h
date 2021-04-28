@@ -20,7 +20,7 @@ typedef struct TCB{
     
     char line_buffer[LINE_BUFFER_SIZE];
     volatile uint8_t stdin_enable;
-    uint8_t buffer_index;
+    uint8_t _buffer_index;
     int cursor_x;
     int cursor_y;
     uint32_t video_buff;
@@ -43,8 +43,8 @@ extern int32_t terminal_read(int32_t fd, void* buf, uint32_t nbytes);
 extern int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes);
 extern int32_t terminal_open(const uint8_t* filename);
 extern int32_t terminal_close(int32_t fd);
-extern void clear_buffer();
-extern void add_buffer(uint8_t key);
+extern void clear_buffer(char* line_buffer);
+extern void add_buffer(char* line_buffer,uint8_t key,int buffer_idx);
 
 char line_buffer[LINE_BUFFER_SIZE];
 char terminal_buffer[LINE_BUFFER_SIZE];  
@@ -55,7 +55,7 @@ int32_t terminal_read_flag;
 extern TCB terminals[max_terminal_number];
 extern int32_t current_terminal_number;
 extern int32_t previous_terminal_number;
-
+extern int32_t last_meet;
 
 #endif
 /*Version 1 ZLH*/

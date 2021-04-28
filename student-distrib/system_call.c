@@ -152,7 +152,7 @@ int32_t halt (uint8_t status){
     }
 
     //update terminal running number
-    terminals[current_terminal_number].running_pid = current_PCB->parent_pid;
+    terminals[scheduled_index].running_pid = current_PCB->parent_pid;
 
     close_file_array(check);
     int32_t parent_esp = current_PCB -> esp;

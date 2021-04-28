@@ -13,6 +13,7 @@
 #include "system_call.h"
 
 int32_t buffer_index = 0; // the cursor index of the buffer
+int32_t last_meet = 0;
 
 /* int32_t terminal_read(fd, buf, nbytes)
  * 
@@ -98,15 +99,15 @@ int32_t terminal_close(int32_t fd) {
  * Return: None
  * Side Effects: clear the buffer
  */
-void clear_buffer(){
+void clear_buffer(char* line_buffer){
     int32_t i;
+
     if (line_buffer == NULL) {
         return;
     }
     for(i = 0; i<LINE_BUFFER_SIZE;i++){
         line_buffer[i] = '\0';
     }
-    buffer_index = 0;
 }
 
 /* void add_buffer()
@@ -117,19 +118,21 @@ void clear_buffer(){
  * Return: None
  * Side Effects: add a key into the buffer
  */
-void add_buffer(uint8_t key){
+void add_buffer(char* line_buffer,uint8_t key,int buffer_idx){
+    
+
+
     if (line_buffer == NULL) {
         return;
     }
-    if(buffer_index == LINE_BUFFER_SIZE){
+    if(buffer_idx == LINE_BUFFER_SIZE){
         return;
     }
-    if((buffer_index == LINE_BUFFER_SIZE - 1) && (key != '\n')){
+    if((buffer_idx == LINE_BUFFER_SIZE - 1) && (key != '\n')){
         return;
     }
 
-    line_buffer[buffer_index] = key;
-    buffer_index = buffer_index + 1;
+    line_buffer[buffer_idx] = key;
 }
 /*Version 1 ZLH*/
 
@@ -144,7 +147,7 @@ int32_t
 init_terminal_structure(){
     int32_t i; // index loop;
     for(i=0; i<max_terminal_number; i++){
-        terminals[i].buffer_index = 0;
+        terminals[i]._buffer_index = 0;
         terminals[i].cursor_x = 0;
         terminals[i].cursor_y = 0;
         terminals[i].running_pid = -1;
@@ -166,25 +169,25 @@ switch_terminal(int32_t terminal_number){
     int32_t _screen_y = 0;
 
 
-    int i; // loop index
+    // int i; // loop index
     /* if the terminal is already the terminal_number th terminal, return -1 */
     if (terminal_number == current_terminal_number){
         return FAIL;
     }
 
     /* from the terminals table, get the current and new terminal */
-    TCB* current_terminal_pointer = &terminals[current_terminal_number];
+    // TCB* current_terminal_pointer = &terminals[current_terminal_number];
     TCB* new_terminal_pointer = &terminals[terminal_number];
 
     /* save the buffer index*/
-    current_terminal_pointer->buffer_index = buffer_index;
+    // current_terminal_pointer->buffer_index = buffer_index;
 
-    /* load the new terminal's information */
-    buffer_index = new_terminal_pointer->buffer_index;
-    // line_buffer = new_terminal_pointer->line_buffer;
-    for (i=0; i<LINE_BUFFER_SIZE; i++){
-        line_buffer[i] = new_terminal_pointer->line_buffer[i];
-    }
+    // /* load the new terminal's information */
+    // buffer_index = new_terminal_pointer->buffer_index;
+    // // line_buffer = new_terminal_pointer->line_buffer;
+    // for (i=0; i<LINE_BUFFER_SIZE; i++){
+    //     line_buffer[i] = new_terminal_pointer->line_buffer[i];
+    // }
 
     screen_x = new_terminal_pointer->cursor_x;
     screen_y = new_terminal_pointer->cursor_y;
@@ -196,22 +199,39 @@ switch_terminal(int32_t terminal_number){
 
     
     if(current_terminal_number==scheduled_index){
-        PT_for_video[user_PT_index].ptb_add=video_memory>>shift_twelve;
-        flush_TLB();
-        // PT[video_memory>>shift_twelve].ptb_add=video_memory>>shift_twelve;
-        // flush_TLB();
+    
+        if(last_meet == 0){
+            PT_for_video[user_PT_index].ptb_add=video_memory>>shift_twelve;
+            flush_TLB();
+            
+            //memcpy(( void *)video_memory,(const void *)(video_memory+four_k*(1+scheduled_index)),four_k);
+        }
 
-        memcpy(( void *)(video_memory+four_k*(1+previous_terminal_number)) ,(const void *)backdoor,four_k);
-        memcpy(( void *)video_memory,(const void *)(video_memory+four_k*(1+scheduled_index)),four_k);
+        if(last_meet == 1){
+            //memcpy(( void *)(video_memory+four_k*(1+previous_terminal_number)) ,(const void *)backdoor,four_k);
+            //memcpy(( void *)video_memory,(const void *)(video_memory+four_k*(1+scheduled_index)),four_k);
+        }
+        
+        
+        last_meet = 1;
     }
     if(current_terminal_number!=scheduled_index){
-        memcpy(  ( void *)(video_memory+four_k*(1+previous_terminal_number))  , (const void *)backdoor,four_k);
-        memcpy(( void *)backdoor,(const void *)(video_memory+four_k*(1+current_terminal_number)),four_k);
-        
-        // PT[video_memory>>shift_twelve].ptb_add=video_memory>>shift_twelve;//(video_memory+four_k*(1+current_terminal_number))>>shift_twelve;
-        // flush_TLB();
-        PT_for_video[user_PT_index].ptb_add=(video_memory+four_k*(1+scheduled_index))>>shift_twelve;
-        flush_TLB();
+        if(last_meet == 1){
+            PT_for_video[user_PT_index].ptb_add=(video_memory+four_k*(1+scheduled_index))>>shift_twelve;
+            flush_TLB();
+            //memcpy(  ( void *)(video_memory+four_k*(1+previous_terminal_number))  , (const void *)backdoor,four_k);
+            //memcpy(( void *)backdoor,(const void *)(video_memory+four_k*(1+current_terminal_number)),four_k);
+        }
+
+
+        if(last_meet == 0){
+            PT_for_video[user_PT_index].ptb_add=(video_memory+four_k*(1+scheduled_index))>>shift_twelve;
+            flush_TLB();
+            //memcpy(( void *)backdoor,(const void *)(video_memory+four_k*(1+current_terminal_number)),four_k);
+            
+        }
+        last_meet = 0;
+
     }
 
 

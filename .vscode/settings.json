@@ -1,6 +1,0 @@
-{
-    "files.associations": {
-        "terminal.h": "c",
-        "exception": "cpp"
-    }
-}

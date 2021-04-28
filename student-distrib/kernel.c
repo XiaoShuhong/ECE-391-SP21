@@ -172,8 +172,10 @@ void entry(unsigned long magic, unsigned long addr) {
     clear();
     printf("WELCOME TO OUR OS!\n");
 
-    init_pit();
+    
     init_fop_table();
+    init_terminal_structure();
+    init_pit();
     
 
     

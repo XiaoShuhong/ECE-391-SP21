@@ -11,7 +11,7 @@
 #include "terminal.h"
 
 
- uint32_t scheduled_index=2;
+int32_t scheduled_index=-1;
 
 
 /* void init_pit(void)
@@ -24,8 +24,8 @@
 
 void init_pit(void){
     outb(PIT_MODE, PIT_COMMAND_PORT);
-    outb((uint8_t)(LATCH && 0xff), PIT_DATA_PORT_CHANNEL0);
-    outb((uint8_t)(LATCH >> 8), PIT_DATA_PORT_CHANNEL0);
+    outb((uint8_t)((uint32_t)(LATCH) && 0xff), PIT_DATA_PORT_CHANNEL0);
+    outb((uint8_t)((uint32_t)(LATCH) >> 8), PIT_DATA_PORT_CHANNEL0);
 
     enable_irq(pit_irq_number);
    
@@ -40,7 +40,6 @@ void init_pit(void){
  * Side effects: 
  */
 void pit_handler(void){
-  
     send_eoi(pit_irq_number);
     // printf("a");
     scheduling();
@@ -71,41 +70,40 @@ void flush_TLB(void){
 
 
 void process_video_switch(void){
-    uint32_t next_running_terminal = (scheduled_index + 1)%3; 
-    if(current_terminal_number!=next_running_terminal){
+    // uint32_t next_running_terminal = (scheduled_index + 1)%3; 
+    // if(current_terminal_number!=next_running_terminal){
        
-        if(last_meet == 0){
-            PT_for_video[user_PT_index].ptb_add=(video_memory+four_k*(1+next_running_terminal))>>shift_twelve;
-            flush_TLB();            
-        }
+    //     if(last_meet == 0){
+    //         PT_for_video[user_PT_index].ptb_add=(video_memory+four_k*(1+next_running_terminal))>>shift_twelve;
+    //         flush_TLB();            
+    //     }
 
-        if(last_meet == 1){
-            PT_for_video[user_PT_index].ptb_add=(video_memory+four_k*(1+next_running_terminal))>>shift_twelve;
-            flush_TLB();  
-            //memcpy(  ( void *)(video_memory+four_k*(1+current_terminal_number))  , (const void *)backdoor,four_k);
-        }
-        last_meet = 0;
-    }
-    if(current_terminal_number==next_running_terminal){
-            PT_for_video[user_PT_index].ptb_add=video_memory>>shift_twelve;
-            flush_TLB();           
-        if(last_meet == 0){
-            PT_for_video[user_PT_index].ptb_add=video_memory>>shift_twelve;
-            flush_TLB();    
+    //     if(last_meet == 1){
+    //         PT_for_video[user_PT_index].ptb_add=(video_memory+four_k*(1+next_running_terminal))>>shift_twelve;
+    //         flush_TLB();  
+    //         memcpy(  ( void *)(video_memory+four_k*(1+current_terminal_number))  , (const void *)backdoor,four_k);
+    //     }
+    //     last_meet = 0;
+    // }
+    // if(current_terminal_number==next_running_terminal){
+                 
+    //     if(last_meet == 0){
+    //         PT_for_video[user_PT_index].ptb_add=video_memory>>shift_twelve;
+    //         flush_TLB();    
 
             
-        }
-        if(last_meet == 1){
-            //memcpy(  ( void *)(video_memory+four_k*(1+current_terminal_number))  , (const void *)backdoor,four_k);
-            //memcpy(( void *)video_memory,(const void *)(video_memory+four_k*(1+next_running_terminal)),(uint32_t)four_k);
-        }
+    //     }
+    //     if(last_meet == 1){
+    //         memcpy(  ( void *)(video_memory+four_k*(1+current_terminal_number))  , (const void *)backdoor,four_k);
+    //         memcpy(( void *)video_memory,(const void *)(video_memory+four_k*(1+next_running_terminal)),(uint32_t)four_k);
+    //     }
       
         
         
-        last_meet = 1;
-    }
+    //     last_meet = 1;
+    // }
 
-// PT[video_memory>>shift_twelve].ptb_add=video_memory>>shift_twelve;
+
 }
 
 
@@ -250,8 +248,67 @@ int32_t init_shells(const uint8_t* command){
 
 void process_switch(void){
 
+
+
+      
+    // terminals[current_terminal_number].cursor_x = screen_x;
+    // terminals[current_terminal_number].cursor_y = screen_y;
+
+    // if(current_PCB!=NULL){
+    //     uint32_t curr_esp = 0;
+    //     uint32_t curr_ebp = 0;
+    //     asm volatile(
+    //         "movl %%esp, %0 ;"
+    //         "movl %%ebp, %1 ;"
+    //         : "=r" (curr_esp) ,"=r" (curr_ebp) 
+    //     );
+    //     current_PCB->cur_esp = curr_esp;
+    //     current_PCB->cur_ebp = curr_ebp;
+    //     current_PCB->cur_esp0 =  tss.esp0;
+    // }
+
+
+
+
+    // scheduled_index = (scheduled_index + 1)%3; 
+    // uint32_t next_pid = terminals[scheduled_index].running_pid;
+    
+    // // uint32_t cur_pid = current_PCB->pid;
+    // // PCB* cur_process = PCB_array[cur_pid];
+    // // PCB* next_process = PCB_array[next_pid];
+    // if(next_pid == -1){
+    //     init_shells((uint8_t*)"shell"); 
+    // }
+    // else{
+    //     uint32_t curr_esp = PCB_array[next_pid]->esp;
+    //     uint32_t curr_ebp = PCB_array[next_pid]->ebp;
+    //     tss.esp0 = PCB_array[next_pid]->tss_esp0;
+    //     tss.ss0 = KERNEL_DS; 
+
+    //     current_PCB = PCB_array[next_pid];        
+    //     asm volatile(
+    //         "movl %0, %%esp ;"
+    //         "movl %1, %%ebp ;"
+    //         : 
+    //         : "r" (curr_esp), "r" (curr_ebp)
+    //         : "esp", "ebp"
+    //     );
+
+
+    // }
+
+    // asm volatile(
+    //     "leave  ;"
+    //     "ret    ;"
+    // );
+
+
+    cli();
     terminals[current_terminal_number].cursor_x = screen_x;
     terminals[current_terminal_number].cursor_y = screen_y;
+
+    scheduled_index = (scheduled_index + 1)%3; 
+
     if(PCB_array[0] == NULL || PCB_array[1] == NULL || PCB_array[2] == NULL ){
         if(current_PCB!=NULL){
             asm volatile("movl %%esp, %0":"=r" (current_PCB->cur_esp));
@@ -261,13 +318,13 @@ void process_switch(void){
     }
 
 
-    uint32_t next_running_terminal = (scheduled_index + 1)%3; 
-    uint32_t next_pid = terminals[next_running_terminal].running_pid;
+    
+    uint32_t next_pid = terminals[scheduled_index].running_pid;
     uint32_t cur_pid = current_PCB->pid;
     PCB* cur_process = PCB_array[cur_pid];
     PCB* next_process = PCB_array[next_pid];
 
-    scheduled_index = (scheduled_index + 1) % 3;
+   
     current_PCB = PCB_array[next_pid];
     //save cur process's esp, ebp
     asm volatile("movl %%esp, %0":"=r" (cur_process->cur_esp));
@@ -277,6 +334,10 @@ void process_switch(void){
     //change TSS's esp0
     tss.esp0 = (uint32_t)next_process +KERNAL_STACK_SIZE-avoid_page_fault_fence;
     set_user_page(next_pid);
+    
+    //printf("scheduled_index is:%d \n", scheduled_index);
+
+    sti();
     
     //load next_process's esp ebp
     asm volatile ("         \n\

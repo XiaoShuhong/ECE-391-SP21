@@ -151,12 +151,12 @@ keyboard_handler(void){
     uint8_t scan_code = inb(KEYBOARD_PORT_DATA) & LOW_EIGHT_BITS;
     uint8_t keyprinted = key2ascii_map[scan_code][0]; // get the key which we want to printed, init to the lowercase
     
-    char line_buffer[LINE_BUFFER_SIZE];
-    for (i=0; i<LINE_BUFFER_SIZE; i++){
-        line_buffer[i] = terminals[current_terminal_number].line_buffer[i];
-    }
+    // char line_buffer[LINE_BUFFER_SIZE];
+    // for (i=0; i<LINE_BUFFER_SIZE; i++){
+    //     line_buffer[i] = terminals[current_terminal_number].line_buffer[i];
+    // }
 
-    int buffer_index = terminals[current_terminal_number]._buffer_index;
+    // int buffer_index = terminals[current_terminal_number]._buffer_index;
 
     /* for the special scancode, return */
     if (special_scancode_handler(scan_code) == 1) {
@@ -179,28 +179,30 @@ keyboard_handler(void){
             if(buffer_index == 0){
                 return;
             }
-            buffer_index--;
+            // buffer_index--;
             terminals[current_terminal_number]._buffer_index--;
-            line_buffer[buffer_index] = '\0';
+            // line_buffer[buffer_index] = '\0';
             terminals[current_terminal_number].line_buffer[buffer_index] = '\0'; 
             backspace();
             return;
         }
     /*Version 4 ZLH*/
 
-        if((buffer_index == 127) && (keyprinted != '\n')){
+        if((terminals[current_terminal_number]._buffer_index == 127) && (keyprinted != '\n')){
             return;
         }
     /*Version 4 ZLH*/
         if(keyprinted == '\n'){
+
+            terminals[current_terminal_number].stdin_enable = 1;
             putc(keyprinted);
-            add_buffer(line_buffer,keyprinted,buffer_index);
-            buffer_index++;
+            // add_buffer(line_buffer,keyprinted,buffer_index);
+            // buffer_index++;
             add_buffer(terminals[current_terminal_number].line_buffer,keyprinted,terminals[current_terminal_number]._buffer_index);
             terminals[current_terminal_number]._buffer_index++;
             if(terminal_read_flag == 0){ //This is used to solve the problem of terminal read when pressing enter
-                clear_buffer(line_buffer);
-                buffer_index = 0;
+                // clear_buffer(line_buffer);
+                // buffer_index = 0;
                 clear_buffer(terminals[current_terminal_number].line_buffer);
                 terminals[current_terminal_number]._buffer_index = 0;
             }
@@ -219,8 +221,9 @@ keyboard_handler(void){
                keyprinted = key2ascii_map[scan_code][1]; 
             }
         }
-        add_buffer(line_buffer,keyprinted,buffer_index);
-        buffer_index++;
+
+        // add_buffer(line_buffer,keyprinted,buffer_index);
+        // buffer_index++;
         add_buffer(terminals[current_terminal_number].line_buffer,keyprinted,terminals[current_terminal_number]._buffer_index);
         terminals[current_terminal_number]._buffer_index++;
 
@@ -304,7 +307,14 @@ int32_t special_scancode_handler(uint8_t scan_code){
 int32_t copy_buffer(void* buf){
     int32_t num;
     int i;
-    while(terminals[scheduled_index].line_buffer[terminals[scheduled_index]._buffer_index - 1] != '\n'){}
+    while(terminals[scheduled_index].stdin_enable != 1){}
+    // while(terminals[scheduled_index].line_buffer[terminals[scheduled_index]._buffer_index - 1] != '\n'){ 
+    //     if((&buf) == 0x7FDF90 ){printf("%x\n",&buf);}
+
+
+    //  }//printf("%x\n",&buf);
+    // while(terminals[current_terminal_number].line_buffer[terminals[current_terminal_number]._buffer_index - 1] != '\n'){  }
+    // printf("%x\n",&buf);
     int buffer_index = terminals[scheduled_index]._buffer_index;
     num = buffer_index;
 
@@ -312,7 +322,9 @@ int32_t copy_buffer(void* buf){
     for (i=0; i<LINE_BUFFER_SIZE; i++){
         line_buffer[i] = terminals[current_terminal_number].line_buffer[i];
     }
+
     strncpy((int8_t*) buf, line_buffer, buffer_index);
+    // printf("%s",buf);
     clear_buffer(terminals[scheduled_index].line_buffer);
     terminals[scheduled_index]._buffer_index= 0;
 

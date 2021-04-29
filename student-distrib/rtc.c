@@ -143,7 +143,7 @@ freq_2_rate(uint32_t freq){
         rate = rate + 1;
         temp = temp >> 1;
     }
-    return rate-1;  
+    return rate+1;  
 }
 
 /*
@@ -188,11 +188,11 @@ set_rtc_rate(uint32_t rate){
 int32_t 
 rtc_open(const uint8_t* filename){
 
-    int32_t rate = freq_2_rate(two_HZ);
+    int32_t rate = freq_2_rate(max_HZ);
     set_rtc_rate(rate);
 
 
-    current_PCB->rtc_count_val = max_HZ/two_HZ;
+    current_PCB->rtc_count_val = (max_HZ/two_HZ);
 
     //no interrupt signal
     // interrupt_flag = 0;
@@ -226,13 +226,18 @@ rtc_close(int32_t fd){
 int32_t
 rtc_read(int32_t fd, void* buf, uint32_t nbytes)
 {
+    // int32_t _file_position = 0;
+    // int32_t _rtc_count_val = 0;
 	// interrupt_flag = 0;
 	// while(interrupt_flag == 0);
 	// interrupt_flag = 0;
-    int32_t* _file_position = current_PCB->file_array[fd].file_position;
-    int32_t _rtc_count_val = current_PCB->rtc_count_val;
-    while(*(_file_position) < _rtc_count_val){}
-    // _file_position = 0;
+    // _file_position = current_PCB->file_array[fd].file_position;
+    // _rtc_count_val = current_PCB->rtc_count_val;
+
+    
+    while(current_PCB->file_array[fd].file_position < current_PCB->rtc_count_val){}
+    // *_file_position = 0;
+    current_PCB->file_array[fd].file_position = 0;
 	return SUCCESS;
 }
 
@@ -266,11 +271,11 @@ rtc_write(int32_t fd, const void* buf, int32_t nbytes){
     if (rate == NOT_SUCCESS)
         return NOT_SUCCESS;
 
-    set_rtc_rate(rate);
+    // set_rtc_rate(rate);
 
     // interrupt_flag = 0;
 
-    current_PCB->rtc_count_val = max_HZ/freq;
+    current_PCB->rtc_count_val = (max_HZ/freq);
     return SUCCESS;
 
 }

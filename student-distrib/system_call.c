@@ -755,12 +755,16 @@ int32_t vidmap (uint8_t** screen_start){
     PT_for_video[user_PT_index].pat=0;//set 0 fro processor not support
     PT_for_video[user_PT_index].g=0;//frequently use, global page
     PT_for_video[user_PT_index].avail=0;//all 32 bits are available to software
-    if(scheduled_index!=current_terminal_number){
-        PT_for_video[user_PT_index].ptb_add=(video_memory+four_k*(1+scheduled_index))>>shift_twelve;
-    }
-    if(scheduled_index==current_terminal_number){
-        PT_for_video[user_PT_index].ptb_add=video_memory>>shift_twelve;
-    }
+
+
+
+    PT_for_video[user_PT_index].ptb_add=video_memory>>shift_twelve;
+    // if(scheduled_index!=current_terminal_number){
+    //     PT_for_video[user_PT_index].ptb_add=(video_memory+four_k*(1+scheduled_index))>>shift_twelve;
+    // }
+    // if(scheduled_index==current_terminal_number){
+    //     PT_for_video[user_PT_index].ptb_add=video_memory>>shift_twelve;
+    // }
     
 
 

@@ -34,7 +34,9 @@ int32_t terminal_read(int32_t fd, void* buf, uint32_t nbytes)
 // 	strncpy((int8_t*) buf, line_buffer, buffer_index);
 // 	return buffer_index;
 //
+    //printf("terminal_read called, buffer address：%x",&buf);
     terminal_read_flag = 1;
+    terminals[scheduled_index].stdin_enable = 0;
     if(buf == NULL){
         return FAIL;
     }
@@ -161,8 +163,7 @@ init_terminal_structure(){
     return SUCCESS;
 }
 
-int32_t
-switch_terminal(int32_t terminal_number){
+int32_t switch_terminal(int32_t terminal_number){
 
 
     int32_t _screen_x = 0;
@@ -198,41 +199,41 @@ switch_terminal(int32_t terminal_number){
     current_terminal_number = terminal_number;
 
     
-    if(current_terminal_number==scheduled_index){
+    // if(current_terminal_number==scheduled_index){
     
-        if(last_meet == 0){
-            PT_for_video[user_PT_index].ptb_add=video_memory>>shift_twelve;
-            flush_TLB();
+    //     if(last_meet == 0){
+    //         PT_for_video[user_PT_index].ptb_add=video_memory>>shift_twelve;
+    //         flush_TLB();
             
-            //memcpy(( void *)video_memory,(const void *)(video_memory+four_k*(1+scheduled_index)),four_k);
-        }
+    //         memcpy(( void *)video_memory,(const void *)(video_memory+four_k*(1+scheduled_index)),four_k);
+    //     }
 
-        if(last_meet == 1){
-            //memcpy(( void *)(video_memory+four_k*(1+previous_terminal_number)) ,(const void *)backdoor,four_k);
-            //memcpy(( void *)video_memory,(const void *)(video_memory+four_k*(1+scheduled_index)),four_k);
-        }
+    //     if(last_meet == 1){
+    //         memcpy(( void *)(video_memory+four_k*(1+previous_terminal_number)) ,(const void *)backdoor,four_k);
+    //         memcpy(( void *)video_memory,(const void *)(video_memory+four_k*(1+scheduled_index)),four_k);
+    //     }
         
         
-        last_meet = 1;
-    }
-    if(current_terminal_number!=scheduled_index){
-        if(last_meet == 1){
-            PT_for_video[user_PT_index].ptb_add=(video_memory+four_k*(1+scheduled_index))>>shift_twelve;
-            flush_TLB();
-            //memcpy(  ( void *)(video_memory+four_k*(1+previous_terminal_number))  , (const void *)backdoor,four_k);
-            //memcpy(( void *)backdoor,(const void *)(video_memory+four_k*(1+current_terminal_number)),four_k);
-        }
+    //     last_meet = 1;
+    // }
+    // if(current_terminal_number!=scheduled_index){
+    //     if(last_meet == 1){
+    //         PT_for_video[user_PT_index].ptb_add=(video_memory+four_k*(1+scheduled_index))>>shift_twelve;
+    //         flush_TLB();
+    //         memcpy(  ( void *)(video_memory+four_k*(1+previous_terminal_number))  , (const void *)backdoor,four_k);
+    //         memcpy(( void *)backdoor,(const void *)(video_memory+four_k*(1+current_terminal_number)),four_k);
+    //     }
 
 
-        if(last_meet == 0){
-            PT_for_video[user_PT_index].ptb_add=(video_memory+four_k*(1+scheduled_index))>>shift_twelve;
-            flush_TLB();
-            //memcpy(( void *)backdoor,(const void *)(video_memory+four_k*(1+current_terminal_number)),four_k);
+    //     if(last_meet == 0){
+    //         PT_for_video[user_PT_index].ptb_add=(video_memory+four_k*(1+scheduled_index))>>shift_twelve;
+    //         flush_TLB();
+    //         memcpy(( void *)backdoor,(const void *)(video_memory+four_k*(1+current_terminal_number)),four_k);
             
-        }
-        last_meet = 0;
+    //     }
+    //     last_meet = 0;
 
-    }
+    // }
 
 
     _screen_x = screen_x;

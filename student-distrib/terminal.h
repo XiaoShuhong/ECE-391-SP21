@@ -45,7 +45,7 @@ extern int32_t terminal_open(const uint8_t* filename);
 extern int32_t terminal_close(int32_t fd);
 extern void clear_buffer(char* line_buffer);
 extern void add_buffer(char* line_buffer,uint8_t key,int buffer_idx);
-
+int32_t init_terminal_structure();
 char line_buffer[LINE_BUFFER_SIZE];
 char terminal_buffer[LINE_BUFFER_SIZE];  
 int32_t buffer_index;

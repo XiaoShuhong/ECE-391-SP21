@@ -70,38 +70,38 @@ void flush_TLB(void){
 
 
 void process_video_switch(void){
-    // uint32_t next_running_terminal = (scheduled_index + 1)%3; 
-    // if(current_terminal_number!=next_running_terminal){
+    uint32_t next_running_terminal = (scheduled_index + 1)%3; 
+    if(current_terminal_number!=next_running_terminal){
        
-    //     if(last_meet == 0){
-    //         PT_for_video[user_PT_index].ptb_add=(video_memory+four_k*(1+next_running_terminal))>>shift_twelve;
-    //         flush_TLB();            
-    //     }
+        if(last_meet == 0){
+            PT_for_video[user_PT_index].ptb_add=(video_memory+four_k*(1+next_running_terminal))>>shift_twelve;
+            flush_TLB();            
+        }
 
-    //     if(last_meet == 1){
-    //         PT_for_video[user_PT_index].ptb_add=(video_memory+four_k*(1+next_running_terminal))>>shift_twelve;
-    //         flush_TLB();  
-    //         memcpy(  ( void *)(video_memory+four_k*(1+current_terminal_number))  , (const void *)backdoor,four_k);
-    //     }
-    //     last_meet = 0;
-    // }
-    // if(current_terminal_number==next_running_terminal){
+        if(last_meet == 1){
+            PT_for_video[user_PT_index].ptb_add=(video_memory+four_k*(1+next_running_terminal))>>shift_twelve;
+            flush_TLB();  
+            memcpy(  ( void *)(video_memory+four_k*(1+current_terminal_number))  , (const void *)backdoor,four_k);
+        }
+        last_meet = 0;
+    }
+    if(current_terminal_number==next_running_terminal){
                  
-    //     if(last_meet == 0){
-    //         PT_for_video[user_PT_index].ptb_add=video_memory>>shift_twelve;
-    //         flush_TLB();    
+        if(last_meet == 0){
+            PT_for_video[user_PT_index].ptb_add=video_memory>>shift_twelve;
+            flush_TLB();    
 
             
-    //     }
-    //     if(last_meet == 1){
-    //         memcpy(  ( void *)(video_memory+four_k*(1+current_terminal_number))  , (const void *)backdoor,four_k);
-    //         memcpy(( void *)video_memory,(const void *)(video_memory+four_k*(1+next_running_terminal)),(uint32_t)four_k);
-    //     }
+        }
+        if(last_meet == 1){
+            memcpy(  ( void *)(video_memory+four_k*(1+current_terminal_number))  , (const void *)backdoor,four_k);
+            memcpy(( void *)video_memory,(const void *)(video_memory+four_k*(1+next_running_terminal)),(uint32_t)four_k);
+        }
       
         
         
-    //     last_meet = 1;
-    // }
+        last_meet = 1;
+    }
 
 
 }

@@ -260,7 +260,6 @@ int32_t execute(const uint8_t* command){
     }
 
     
-
     if(read_dentry_by_name((uint8_t*)filename,&tar_dentry)==FAIL){//check if it is a file in file system
         return FAIL;
     }

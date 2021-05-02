@@ -7,7 +7,7 @@
 
 #define MAX_FD_NUM 8
 #define MAX_FILE_LEN 32+1
-#define BUF_SIZE 128
+#define BUF_SIZE 32+1//128
 #define LEN_ELF 4
 #define ELF_buf_size 4
 #define pcb_array_size 6

@@ -1,6 +1,3 @@
-/*Version 1 ML 2021/3/21 10:28*/
-
-/*Version 1 ML*/
 #ifndef _KEYBOARD_H
 #define _KEYBOARD_H
 
@@ -15,5 +12,4 @@ int32_t special_scancode_handler(uint8_t scan_code);
 
 int32_t copy_buffer(void* buf);
 #endif
-/*Version 1 ML*/
 

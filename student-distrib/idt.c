@@ -1,12 +1,5 @@
 /*idt.c used to init interrupt description table*/
 
-/*Version 1 ML 2021/3/20 18:53*/
-/*Version 2 LYC 2021/3/20 18:45*/
-/*Version 3 ZLH 2021/3/22 19:00*/
-/*Version 4 ML 2021/3/22 19:53 add function header and comments*/
-/*Version 5 ML 2021/3/22 19:53 beautify*/
-
-/*Version 1 ML*/
 #include "x86_desc.h"
 #include "lib.h"
 #include "i8259.h"
@@ -17,7 +10,6 @@
 #include "sys_call.h"
 #include "system_call.h"
 
-/*Version 4 ML*/
 
 /* construct_ex_handler
  * 
@@ -53,12 +45,6 @@ constuct_ex_handler(ex_math_fault,                                          "_EX
 constuct_ex_handler(ex_alignment_check,                                     "_EXCEPTION_NUMBER:17, ALIGNMENT CHECK!");
 constuct_ex_handler(ex_machine_check,                                       "_EXCEPTION_NUMBER:18, MACHINE CHECK!");
 constuct_ex_handler(ex_simd_floating_point_exception,                       "_EXCEPTION_NUMBER:19, SIMD FLOATING POINT EXCEPTION!");
-
-
-//This is only for checkpoint 1
-/*Version 3 ZLH*/
-// constuct_ex_handler(system_call_handler,"system_call_handler");
-/*Version 3 ZLH*/
 
 
 /* init_idt()
@@ -97,13 +83,13 @@ void init_idt(){
         // init
         idt[i].seg_selector = KERNEL_CS;
         idt[i].reserved4 = 0x0;
-        idt[i].reserved3 = 0x1; // it should be set to 0, when interrupt handlers
+        idt[i].reserved3 = 0x1;     // it should be set to 0, when interrupt handlers
         idt[i].reserved2 = 0x1;
         idt[i].reserved1 = 0x1;
-        idt[i].size = 0x1; // size<-1 means that 32-bit space for each interrupt handler 
+        idt[i].size = 0x1;          // size<-1 means that 32-bit space for each interrupt handler 
         idt[i].reserved0 = 0x0;
-        idt[i].dpl = 0; // user level (system call) : 3, kernel level : 0
-        idt[i].present = 0; // present should be set to 1 to use
+        idt[i].dpl = 0;             // user level (system call) : 3, kernel level : 0
+        idt[i].present = 0;         // present should be set to 1 to use
     }
 
     // call the SET_IDT_ENTRY function for each exception
@@ -135,31 +121,28 @@ void init_idt(){
         idt[i].present = 1;
     }
 
-    /*Version 2 LYC*/
+
+    // set the special case
     SET_IDT_ENTRY(idt[RTC_IDT_INDEX],rtc_interrupt_handler);
-    idt[RTC_IDT_INDEX].present=1;
-    idt[RTC_IDT_INDEX].reserved3=0;
+    idt[RTC_IDT_INDEX].present = 1;
+    idt[RTC_IDT_INDEX].reserved3 = 0;
+
     SET_IDT_ENTRY(idt[KEYBOARD_IDT_INDEX],keyboard_interrupt_handler);
-    idt[KEYBOARD_IDT_INDEX].present=1;
-    idt[RTC_IDT_INDEX].reserved3=0;
-    /*Version 2 LYC*/
+    idt[KEYBOARD_IDT_INDEX].present = 1;
+    idt[RTC_IDT_INDEX].reserved3 = 0;
     
-    /*Version 3 ZLH*/
+
     SET_IDT_ENTRY(idt[SYSTEM_IDT_INDEX],sys_call_handler);
     idt[SYSTEM_IDT_INDEX].present = 1;
-    idt[SYSTEM_IDT_INDEX].dpl = 3;
-    /*Version 3 ZLH*/    
+    idt[SYSTEM_IDT_INDEX].dpl = 3;  
 
 
     SET_IDT_ENTRY(idt[PIT_IDT_INDEX],pit_interrupt_handler);
-    idt[PIT_IDT_INDEX].present=1;
-    idt[RTC_IDT_INDEX].reserved3=0;
+    idt[PIT_IDT_INDEX].present = 1;
+    idt[RTC_IDT_INDEX].reserved3 = 0;
 
 
-    // set the special case
     lidt(idt_desc_ptr);
     sti();
     return;
 }
-/*Version 1 ML*/
-

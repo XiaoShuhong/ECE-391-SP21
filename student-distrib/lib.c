@@ -1,9 +1,6 @@
 /* lib.c - Some basic library functions (printf, strlen, etc.)
  * vim:ts=4 noexpandtab */
 
-/*Version 1 :ZLH 2021/3/21 22:00*/
-/*Version 2 :ML 2021/3/28 20:04*/
-/*Version 3 :ZLH 2021/3/29 12:00*/
 
 #include "lib.h"
 #include "types.h"
@@ -23,7 +20,6 @@ int _screen_x;
 int _screen_y;
 static char* video_mem = (char *)VIDEO;
 
-/*Version 2 ML*/
 /* void update_cursor(void);
  * Inputs: int x: the x position of the cursor which we want to update
  *         int y: the y position of the cursor which we want to update
@@ -47,7 +43,6 @@ void update_cursor(int x, int y){
     outb(0x0E, 0x3D4);
     outb((uint8_t) ((pos >> THE_EIGHT) & 0xFF), 0x3D5);
 }
-/*Version 2 ML*/
 
 /* void clear(void);
  * Inputs: void
@@ -59,11 +54,11 @@ void clear(void) {
         *(uint8_t *)(video_mem + (i << 1)) = ' ';
         *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
     }
-    /*Version 2 ML*/
+
     screen_x = 0;
     screen_y = 0;
     update_cursor(screen_x, screen_y);
-    /*Version 2 ML*/
+
 }
 
 /* Standard printf().
@@ -205,7 +200,12 @@ int32_t puts(int8_t* s) {
     return index;
 }
 
-void help(uint8_t c){
+/* void putc_normal(uint8_t c);
+ * Inputs: uint_8 c = character to print
+ * Return Value: void
+ * Function: This is a helper function of putc: Output a character to the console for the running terminal
+ */
+void putc_normal(uint8_t c){
     if(c == '\n' || c == '\r') {
         screen_y++;
         screen_x = 0;
@@ -213,7 +213,6 @@ void help(uint8_t c){
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = c;
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
         screen_x++;
-        /*Version 3 ZLH*/
         if(screen_x == NUM_COLS){
             screen_y++;
         }
@@ -225,9 +224,15 @@ void help(uint8_t c){
     update_cursor(screen_x, screen_y);
 }
 
-void help0(uint8_t c){
-    int _screen_x;
-    int _screen_y;
+
+int _screen_x;
+int _screen_y;
+/* void putc_background(uint8_t c);
+ * Inputs: uint_8 c = character to print
+ * Return Value: void
+ * Function: This is a helper function of putc: Output a character to the console for the background terminal
+ */
+void putc_background(uint8_t c){
     _screen_x = terminals[scheduled_index].cursor_x;
     _screen_y = terminals[scheduled_index].cursor_y;
     char* true_address = (char*) VIDEO;
@@ -238,12 +243,12 @@ void help0(uint8_t c){
     } else {
         if(((uint32_t)(true_address + ((NUM_COLS * _screen_y + _screen_x) << 1)))  > ((uint32_t)true_address + four_k))
         {
-            help(c);
+            putc_normal(c);
         }
         *(uint8_t *)(true_address + ((NUM_COLS * _screen_y + _screen_x) << 1)) = c;
         *(uint8_t *)(true_address + ((NUM_COLS * _screen_y + _screen_x) << 1) + 1) = ATTRIB;
         _screen_x++;
-        /*Version 3 ZLH*/
+
         if(_screen_x == NUM_COLS){
             _screen_y++;
         }
@@ -253,34 +258,39 @@ void help0(uint8_t c){
         scroll_up_out(true_address);
     }
     terminals[scheduled_index].cursor_x = _screen_x;
+    terminals[scheduled_index].cursor_y = _screen_y;
 
 
 
-    /**   */
 }
 
 /* void putc(uint8_t c);
- * Inputs: uint_8* c = character to print
+ * Inputs: uint_8 c = character to print
  * Return Value: void
- *  Function: Output a character to the console */
+ * Function: Output a character to the console 
+ */
 void putc(uint8_t c) {
+
+    /* This occasion is for the init three shells */
     if((current_terminal_number == 0)  && (a == 0)  ){
-        help(c);
+        putc_normal(c);
         return;
-    } /*初始的三个shell的打印*/
+    }
 
+    /* This occasion is for the running terminal */
     if((current_terminal_number == scheduled_index) && (a == 1) && (b == 1)){
-        help(c);
+        putc_normal(c);
         return;
-    } /*当前跑的程序*/
+    }
 
+    /* This occasion is for the background terminal */
     if((current_terminal_number != scheduled_index) && (a == 1) && (b == 1)){
-        help0(c);
+        putc_background(c);
         return;
-    }/*后台跑的程序*/
+    }
 
-    help(c);
-/*alt*/
+    /* alt */
+    putc_normal(c);
 }
 
 
@@ -652,7 +662,8 @@ void scroll_up_out(char* memory){
     }
 
 /*update the y value of the screen*/
-     terminals[scheduled_index].cursor_y  = NUM_ROWS - 1;
+    //  terminals[scheduled_index].cursor_y  = NUM_ROWS - 1;
+    _screen_y = NUM_ROWS - 1;
 
 /*clean the last line*/
     for(i = (NUM_ROWS - 1) * NUM_COLS; i < NUM_ROWS * NUM_COLS; i++){

@@ -33,7 +33,6 @@ typedef struct TCB{
     int32_t tid;
     int32_t vidmap;
 
-///////////////////////////////////////////////////
     int32_t running_pid;
 
 

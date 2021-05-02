@@ -1,5 +1,4 @@
 /*pit.c used to init periodic interval timer device*/
-/*Version 1 ML 2021/4/25 9:50*/
 
 #include "pit.h"
 #include "types.h"

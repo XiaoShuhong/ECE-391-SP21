@@ -11,6 +11,8 @@
 #include "types.h"
 
 int32_t printf(int8_t *format, ...);
+void putc_normal(uint8_t c);
+void putc_background(uint8_t c);
 void putc(uint8_t c);
 int32_t puts(int8_t *s);
 int8_t *itoa(uint32_t value, int8_t* buf, int32_t radix);
@@ -18,15 +20,16 @@ int8_t *strrev(int8_t* s);
 uint32_t strlen(const int8_t* s);
 void clear(void);
 
-/*Version 1 ZLH*/
+
+
 void scroll_up(char* memory);
 void scroll_up_out(char* memory);
-/*Version 1 ZLH*/
 
-/*Version 2 ML*/
+
+
 void update_cursor(int32_t x, int32_t y);
 void backspace(void);
-/*Version 2 ML*/
+
 
 extern int screen_x;
 extern int screen_y;

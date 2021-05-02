@@ -1,12 +1,5 @@
 /*keyboard.c used to init keyboard device*/
-/*Version 1 ML 2021/3/21 10:28*/
-/*Version 2 ML 2021/3/22 20:01 add function header and comments*/
-/*Version 3 ML 2021/3/27 16:22*/
-/*Version 4 ZLH 2021/3/29 20:56*/
 
-
-/*Version 1 ML*/
-/*Version 2 ML*/
 #include "x86_desc.h"
 #include "lib.h"
 #include "i8259.h"
@@ -106,7 +99,7 @@ unsigned char key2ascii_map[SCANCODESIZE][2] = {
 
 };
 
-/*Version 3 ML*/
+
 /* Define the buffers to detect whether the special scancode is inputted */
 /* 0 is unpressed, 1 is pressed*/
 uint8_t Ctrl_Buffer = 0;
@@ -118,7 +111,6 @@ uint8_t Alt_Buffer = 0;
 /* 0 is lowercases, 1 is capitals*/
 uint8_t CapsLock_state = 0;
 
-/*Version 3 ML*/
 
 /* init_keyboard()
  * 
@@ -142,7 +134,6 @@ init_keyboard(void){
  * Outputs: None
  * Side Effects: Send the scan code which sent by the keyboard device to our video memory to show it on the screen
  */
-/*Version 3 ML*/
 void
 keyboard_handler(void){
 
@@ -150,13 +141,6 @@ keyboard_handler(void){
     send_eoi(KEYBOARD_IRQ); // send the signal of end_of_interrupt. This instruction must be here!!! Otherwise the eoi signal will not be sent, other interrupts will not be allowed to happen
     uint8_t scan_code = inb(KEYBOARD_PORT_DATA) & LOW_EIGHT_BITS;
     uint8_t keyprinted = key2ascii_map[scan_code][0]; // get the key which we want to printed, init to the lowercase
-    
-    // char line_buffer[LINE_BUFFER_SIZE];
-    // for (i=0; i<LINE_BUFFER_SIZE; i++){
-    //     line_buffer[i] = terminals[current_terminal_number].line_buffer[i];
-    // }
-
-    // int buffer_index = terminals[current_terminal_number]._buffer_index;
 
     /* for the special scancode, return */
     if (special_scancode_handler(scan_code) == 1) {
@@ -164,7 +148,7 @@ keyboard_handler(void){
         return; 
     }
 
-    /*Version 4 ZLH*/
+
     if (scan_code < SCANCODESIZE && scan_code > 0x01){
      /* handle the CTRL+L, clear the screen */
         if (Ctrl_Buffer == 1){
@@ -179,34 +163,28 @@ keyboard_handler(void){
             if(terminals[current_terminal_number]._buffer_index == 0){
                 return;
             }
-            // buffer_index--;
             terminals[current_terminal_number]._buffer_index--;
-            // line_buffer[buffer_index] = '\0';
             terminals[current_terminal_number].line_buffer[terminals[current_terminal_number]._buffer_index] = '\0'; 
             backspace();
             return;
         }
-    /*Version 4 ZLH*/
 
         if((terminals[current_terminal_number]._buffer_index == 127) && (keyprinted != '\n')){
             return;
         }
-    /*Version 4 ZLH*/
         if(keyprinted == '\n'){
 
             terminals[current_terminal_number].stdin_enable = 1;
-            help(keyprinted);
-            // add_buffer(line_buffer,keyprinted,buffer_index);
-            // buffer_index++;
+            putc_normal(keyprinted);
+
             add_buffer(terminals[current_terminal_number].line_buffer,keyprinted,terminals[current_terminal_number]._buffer_index);
             terminals[current_terminal_number]._buffer_index++;
+
             if(terminal_read_flag == 0){ //This is used to solve the problem of terminal read when pressing enter
-                // clear_buffer(line_buffer);
-                // buffer_index = 0;
                 clear_buffer(terminals[current_terminal_number].line_buffer);
                 terminals[current_terminal_number]._buffer_index = 0;
             }
-    /*Version 4 ZLH*/
+
             return;
         }
 
@@ -222,16 +200,11 @@ keyboard_handler(void){
             }
         }
 
-        // add_buffer(line_buffer,keyprinted,buffer_index);
-        // buffer_index++;
         add_buffer(terminals[current_terminal_number].line_buffer,keyprinted,terminals[current_terminal_number]._buffer_index);
         terminals[current_terminal_number]._buffer_index++;
 
-        help(keyprinted);
-     // use to test
+        putc_normal(keyprinted);
     }
-    /*After these operations, we will get the correct printed key, what should we do next?*/
-    // your code here...
     sti();
 }
 
@@ -299,22 +272,22 @@ int32_t special_scancode_handler(uint8_t scan_code){
             return 0;
     }
 }
-/*Version 3 ML*/
 
-/*Version 1 ML*/
-/*Version 2 ML*/
 
+
+/* copy_buffer()
+ * 
+ * This function is used to copy buffer into terminals
+ * Inputs: buf: the pointer to the copied buffer
+ * Outputs: None
+ * Side Effects: Copy the buffer into terminals
+ */
 int32_t copy_buffer(void* buf){
     int32_t num;
     int i;
     while(terminals[scheduled_index].stdin_enable != 1){}
-    // while(terminals[scheduled_index].line_buffer[terminals[scheduled_index]._buffer_index - 1] != '\n'){ 
-    //     if((&buf) == 0x7FDF90 ){printf("%x\n",&buf);}
 
 
-    //  }//printf("%x\n",&buf);
-    // while(terminals[current_terminal_number].line_buffer[terminals[current_terminal_number]._buffer_index - 1] != '\n'){  }
-    // printf("%x\n",&buf);
     int buffer_index = terminals[scheduled_index]._buffer_index;
     num = buffer_index;
 
@@ -324,7 +297,7 @@ int32_t copy_buffer(void* buf){
     }
 
     strncpy((int8_t*) buf, line_buffer, buffer_index);
-    // printf("%s",buf);
+
     clear_buffer(terminals[scheduled_index].line_buffer);
     terminals[scheduled_index]._buffer_index= 0;
 

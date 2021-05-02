@@ -156,35 +156,22 @@ void entry(unsigned long magic, unsigned long addr) {
         ltr(KERNEL_TSS);
     }
 
-    /* Init the PIC */
-    i8259_init();
-
-    /*Version 1 LYC*/
-    // init the rtc
-    init_keyboard();
-   
-    init_page();
-    init_sysfile();
-    init_rtc();
-
-    
-    // printf("LOAD SHELL...\n");
-    // printf("WELCOME TO OUR OS!\n");
-
-    
-    init_fop_table();
-    init_terminal_structure();
-    clear();
-    init_pit();
-
     
 
-    
-    /*Version 1 LYC*/
 
     /* Initialize devices, memory, filesystem, enable device interrupts on the
      * PIC, any other initialization stuff... */
 
+    i8259_init();
+    init_keyboard();
+    init_page();
+    init_sysfile();
+    init_rtc();
+    init_fop_table();
+    init_terminal_structure();
+    clear();
+    init_pit();
+    
     /* Enable interrupts */
     /* Do not enable the following until after you have set up your
      * IDT correctly otherwise QEMU will triple fault and simple close

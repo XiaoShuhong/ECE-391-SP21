@@ -9,7 +9,7 @@
 
 PCB* PCB_array[pcb_array_size]={NULL,NULL,NULL,NULL,NULL,NULL};
 PCB* current_PCB = NULL;
-int32_t shell_count=0;
+int32_t program_count=0;
 
 file_op_table fop_table[NUM_DRIVERS];
 
@@ -114,9 +114,9 @@ int32_t halt (uint8_t status){
     //int32_t flag;
     cli();
 
-    if(current_PCB->shell_indicator==1){
-        shell_count = shell_count-1;
-    }
+    
+    program_count = program_count-1;
+    
 
 
     /* free the current process in bitmap*/
@@ -251,13 +251,14 @@ int32_t execute(const uint8_t* command){
             is_shell = 0;
             break;}
     }
-    if(shell_count >=3 && is_shell==1){
+    if(program_count >=6 ){
         return 0;
     }
     
-    if (is_shell==1){
-        shell_count = shell_count + 1;
-    }
+    // if (is_shell==1){
+    //     shell_count = shell_count + 1;
+    // }
+    program_count+=1;
 
     
     if(read_dentry_by_name((uint8_t*)filename,&tar_dentry)==FAIL){//check if it is a file in file system
@@ -304,9 +305,20 @@ int32_t execute(const uint8_t* command){
 
     //save process information to current_PCB
     current_PCB->pid=new_pid;
-    current_PCB->parent_pid=terminals[current_terminal_number].running_pid;
-    //update terminal's running_pid
-    terminals[current_terminal_number].running_pid = new_pid;
+    if(new_pid==0 || new_pid==1|| new_pid==2){
+        current_PCB->parent_pid=-1;
+        terminals[current_terminal_number].running_pid=new_pid;
+
+    }
+    else{
+        current_PCB->parent_pid=terminals[current_terminal_number].running_pid;
+        terminals[current_terminal_number].running_pid=new_pid;
+    }
+
+    
+    // current_PCB->parent_pid=terminals[current_terminal_number].running_pid;
+    // //update terminal's running_pid
+    // terminals[current_terminal_number].running_pid = new_pid;
     current_PCB->tss_esp0=(uint32_t)current_PCB +KERNAL_STACK_SIZE-avoid_page_fault_fence;
     if(is_shell == 1){
         current_PCB->shell_indicator=1;

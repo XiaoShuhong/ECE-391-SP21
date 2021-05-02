@@ -131,13 +131,11 @@ int32_t init_shells(const uint8_t* command){
             is_shell = 0;
             break;}
     }
-    if(shell_count >=3 && is_shell==1){
+    if(program_count >=6 ){
         return 0;
     }
     
-    if (is_shell==1){
-        shell_count = shell_count + 1;
-    }
+    program_count+=1;
 
     
 

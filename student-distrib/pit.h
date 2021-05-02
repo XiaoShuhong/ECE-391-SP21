@@ -18,6 +18,7 @@ void flush_TLB(void);
 void process_video_switch(void);
 int32_t init_shells(const uint8_t* command);
 void process_switch(void);
+extern int a;
 
 
 

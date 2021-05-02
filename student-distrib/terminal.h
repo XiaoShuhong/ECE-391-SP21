@@ -51,7 +51,7 @@ char terminal_buffer[LINE_BUFFER_SIZE];
 int32_t buffer_index;
 int32_t terminal_read_flag;
 
-
+extern int b;
 extern TCB terminals[max_terminal_number];
 extern int32_t current_terminal_number;
 extern int32_t previous_terminal_number;

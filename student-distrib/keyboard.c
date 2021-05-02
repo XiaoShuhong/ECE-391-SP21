@@ -145,7 +145,7 @@ init_keyboard(void){
 /*Version 3 ML*/
 void
 keyboard_handler(void){
-    int i;
+
     cli();
     send_eoi(KEYBOARD_IRQ); // send the signal of end_of_interrupt. This instruction must be here!!! Otherwise the eoi signal will not be sent, other interrupts will not be allowed to happen
     uint8_t scan_code = inb(KEYBOARD_PORT_DATA) & LOW_EIGHT_BITS;
@@ -176,13 +176,13 @@ keyboard_handler(void){
         }
 
         if (keyprinted == '\b'){
-            if(buffer_index == 0){
+            if(terminals[current_terminal_number]._buffer_index == 0){
                 return;
             }
             // buffer_index--;
             terminals[current_terminal_number]._buffer_index--;
             // line_buffer[buffer_index] = '\0';
-            terminals[current_terminal_number].line_buffer[buffer_index] = '\0'; 
+            terminals[current_terminal_number].line_buffer[terminals[current_terminal_number]._buffer_index] = '\0'; 
             backspace();
             return;
         }
@@ -195,7 +195,7 @@ keyboard_handler(void){
         if(keyprinted == '\n'){
 
             terminals[current_terminal_number].stdin_enable = 1;
-            putc(keyprinted);
+            help(keyprinted);
             // add_buffer(line_buffer,keyprinted,buffer_index);
             // buffer_index++;
             add_buffer(terminals[current_terminal_number].line_buffer,keyprinted,terminals[current_terminal_number]._buffer_index);
@@ -227,7 +227,7 @@ keyboard_handler(void){
         add_buffer(terminals[current_terminal_number].line_buffer,keyprinted,terminals[current_terminal_number]._buffer_index);
         terminals[current_terminal_number]._buffer_index++;
 
-        putc(keyprinted);
+        help(keyprinted);
      // use to test
     }
     /*After these operations, we will get the correct printed key, what should we do next?*/

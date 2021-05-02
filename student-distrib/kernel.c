@@ -168,14 +168,15 @@ void entry(unsigned long magic, unsigned long addr) {
     init_rtc();
 
     
-    printf("LOAD SHELL...\n");
-    clear();
-    printf("WELCOME TO OUR OS!\n");
+    // printf("LOAD SHELL...\n");
+    // printf("WELCOME TO OUR OS!\n");
 
     
     init_fop_table();
     init_terminal_structure();
+    clear();
     init_pit();
+
     
 
     

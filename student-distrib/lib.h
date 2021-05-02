@@ -19,7 +19,8 @@ uint32_t strlen(const int8_t* s);
 void clear(void);
 
 /*Version 1 ZLH*/
-void scroll_up(void);
+void scroll_up(char* memory);
+void scroll_up_out(char* memory);
 /*Version 1 ZLH*/
 
 /*Version 2 ML*/
@@ -29,7 +30,8 @@ void backspace(void);
 
 extern int screen_x;
 extern int screen_y;
-
+extern int _screen_x;
+extern int _screen_y;
 void test_interrupts(void);
 
 

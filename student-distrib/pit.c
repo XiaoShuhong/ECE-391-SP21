@@ -12,6 +12,7 @@
 
 
 int32_t scheduled_index=-1;
+int a = 0;
 
 
 /* void init_pit(void)
@@ -249,7 +250,6 @@ int32_t init_shells(const uint8_t* command){
 void process_switch(void){
 
 
-
       
     // terminals[current_terminal_number].cursor_x = screen_x;
     // terminals[current_terminal_number].cursor_y = screen_y;
@@ -316,7 +316,7 @@ void process_switch(void){
         }
         init_shells((uint8_t*)"shell"); 
     }
-
+    a = 1;
 
     
     uint32_t next_pid = terminals[scheduled_index].running_pid;

@@ -7,7 +7,10 @@
 
 #include "lib.h"
 #include "types.h"
-
+#include "pit.h"
+#include "terminal.h"
+#include "x86_desc.h"
+#include "system_call.h"
 #define VIDEO       0xB8000
 #define NUM_COLS    80
 #define NUM_ROWS    25
@@ -16,6 +19,8 @@
 #define THE_EIGHT   8
 int screen_x;
 int screen_y;
+int _screen_x;
+int _screen_y;
 static char* video_mem = (char *)VIDEO;
 
 /*Version 2 ML*/
@@ -200,17 +205,7 @@ int32_t puts(int8_t* s) {
     return index;
 }
 
-/* void putc(uint8_t c);
- * Inputs: uint_8* c = character to print
- * Return Value: void
- *  Function: Output a character to the console */
-void putc(uint8_t c) {
-    // /******/
-    // if (c == '\b'){
-    //     backspace();
-    //     return;
-    // }
-    // /******/
+void help(uint8_t c){
     if(c == '\n' || c == '\r') {
         screen_y++;
         screen_x = 0;
@@ -223,22 +218,70 @@ void putc(uint8_t c) {
             screen_y++;
         }
         screen_x %= NUM_COLS;
-        /*Version 3 ZLH*/
-
-        // screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
     }
-
-/*Version 1 ZLH*/
-//check if the screen is full
     if((screen_y) == NUM_ROWS){
-        scroll_up();
+        scroll_up(video_mem);
     }
-
-    /*Version 2 ML*/
     update_cursor(screen_x, screen_y);
-    /*Version 2 ML*/
 }
-/*Version 1 ZLH*/
+
+void help0(uint8_t c){
+    int _screen_x;
+    int _screen_y;
+    _screen_x = terminals[scheduled_index].cursor_x;
+    _screen_y = terminals[scheduled_index].cursor_y;
+    char* true_address = (char*) VIDEO;
+    true_address = (char*) (video_memory + four_k * (1+scheduled_index));
+    if(c == '\n' || c == '\r') {
+        _screen_y++;
+        _screen_x = 0;
+    } else {
+        if(((uint32_t)(true_address + ((NUM_COLS * _screen_y + _screen_x) << 1)))  > ((uint32_t)true_address + four_k))
+        {
+            help(c);
+        }
+        *(uint8_t *)(true_address + ((NUM_COLS * _screen_y + _screen_x) << 1)) = c;
+        *(uint8_t *)(true_address + ((NUM_COLS * _screen_y + _screen_x) << 1) + 1) = ATTRIB;
+        _screen_x++;
+        /*Version 3 ZLH*/
+        if(_screen_x == NUM_COLS){
+            _screen_y++;
+        }
+        _screen_x %= NUM_COLS;
+    }
+    if((_screen_y) == NUM_ROWS){
+        scroll_up_out(true_address);
+    }
+    terminals[scheduled_index].cursor_x = _screen_x;
+
+
+
+    /**   */
+}
+
+/* void putc(uint8_t c);
+ * Inputs: uint_8* c = character to print
+ * Return Value: void
+ *  Function: Output a character to the console */
+void putc(uint8_t c) {
+    if((current_terminal_number == 0)  && (a == 0)  ){
+        help(c);
+        return;
+    } /*初始的三个shell的打印*/
+
+    if((current_terminal_number == scheduled_index) && (a == 1) && (b == 1)){
+        help(c);
+        return;
+    } /*当前跑的程序*/
+
+    if((current_terminal_number != scheduled_index) && (a == 1) && (b == 1)){
+        help0(c);
+        return;
+    }/*后台跑的程序*/
+
+    help(c);
+/*alt*/
+}
 
 
 
@@ -562,7 +605,7 @@ void test_interrupts(void) {
 
 
 /*Version 1 ZLH*/
-void scroll_up(void){
+void scroll_up(char* memory){
 
     /* loop index */
     int32_t i;
@@ -575,7 +618,7 @@ void scroll_up(void){
         for(j=0;j<NUM_COLS;j++){
             origin = NUM_COLS*(i+1) + j;
             update = NUM_COLS*i + j;
-            *(uint8_t *)(video_mem + (update<<1)) = *(uint8_t *)(video_mem + (origin<<1)); 
+            *(uint8_t *)(memory + (update<<1)) = *(uint8_t *)(memory + (origin<<1)); 
         }
     }
 
@@ -584,12 +627,40 @@ void scroll_up(void){
 
 /*clean the last line*/
     for(i = (NUM_ROWS - 1) * NUM_COLS; i < NUM_ROWS * NUM_COLS; i++){
-        *(uint8_t *)(video_mem + (i << 1)) = ' ';
-        *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
+        *(uint8_t *)(memory + (i << 1)) = ' ';
+        *(uint8_t *)(memory + (i << 1) + 1) = ATTRIB;
     }
 /*Version 1 ZLH*/
 }
 
+/*Version 1 ZLH*/
+void scroll_up_out(char* memory){
+
+    /* loop index */
+    int32_t i;
+    int32_t j;
+    int32_t origin;
+    int32_t update;
+
+/*update the current screen except the last line with the next line*/
+    for(i=0;i<NUM_ROWS-1;i++){
+        for(j=0;j<NUM_COLS;j++){
+            origin = NUM_COLS*(i+1) + j;
+            update = NUM_COLS*i + j;
+            *(uint8_t *)(memory + (update<<1)) = *(uint8_t *)(memory + (origin<<1)); 
+        }
+    }
+
+/*update the y value of the screen*/
+     terminals[scheduled_index].cursor_y  = NUM_ROWS - 1;
+
+/*clean the last line*/
+    for(i = (NUM_ROWS - 1) * NUM_COLS; i < NUM_ROWS * NUM_COLS; i++){
+        *(uint8_t *)(memory + (i << 1)) = ' ';
+        *(uint8_t *)(memory + (i << 1) + 1) = ATTRIB;
+    }
+/*Version 1 ZLH*/
+}
 
 
 

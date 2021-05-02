@@ -57,6 +57,7 @@ int32_t terminal_read(int32_t fd, void* buf, uint32_t nbytes)
  */
 int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
     int32_t temp_count;
+    cli();
     if(buf == NULL){
         return FAIL;
     }
@@ -64,6 +65,7 @@ int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
     for(temp_count = 0; temp_count < nbytes; temp_count++){
         putc(char_buf[temp_count]);
     }
+    sti();
     /* return # of bytes written */
     return temp_count;
 }
@@ -163,9 +165,10 @@ init_terminal_structure(){
     return SUCCESS;
 }
 
+int b = 1;
 int32_t switch_terminal(int32_t terminal_number){
 
-
+    b = 0;
     int32_t _screen_x = 0;
     int32_t _screen_y = 0;
 
@@ -173,6 +176,7 @@ int32_t switch_terminal(int32_t terminal_number){
     // int i; // loop index
     /* if the terminal is already the terminal_number th terminal, return -1 */
     if (terminal_number == current_terminal_number){
+        b = 1;
         return FAIL;
     }
 
@@ -240,9 +244,14 @@ int32_t switch_terminal(int32_t terminal_number){
     _screen_y = screen_y;
     screen_x = 0;
     screen_y = 0;
-    printf("To terminal # %d",terminal_number);
-    screen_x = _screen_x;
-    screen_y = _screen_y;
+    printf("This is Terminal # %d",terminal_number);
+    b = 1;
+    update_cursor(20, 0);
+    if((_screen_x != 0) || (_screen_y != 0)){
+        screen_x = _screen_x;
+        screen_y = _screen_y;
+        update_cursor(screen_x, screen_y);
+    }
 
     return SUCCESS;
 }

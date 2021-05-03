@@ -3,7 +3,7 @@
  * vim:ts=4 noexpandtab
  */
 
-/*Version 1 ZLH 2021/3/21 16:29*/
+
 
 #ifndef _I8259_H
 #define _I8259_H
@@ -14,7 +14,7 @@
 #define MASTER_8259_PORT    0x20
 #define SLAVE_8259_PORT     0xA0
 
-/*Version 1 ZLH*/
+
 #define MASTER_8259_DATA    0x21
 #define SLAVE_8259_DATA     0xA1
 
@@ -23,7 +23,7 @@
 #define IRQ_NUM_MAX         15
 #define IRQ_NUM_MIN         0
 #define PORTS_NUMBER        8
-/*Version 1 ZLH*/
+
 
 /* Initialization control words to init each PIC.
  * See the Intel manuals for details on the meaning

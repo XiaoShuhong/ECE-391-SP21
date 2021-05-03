@@ -1,8 +1,5 @@
 /*terminal.c used to define four terminal functions*/
-/*Version 1 ZLH 2021/3/29 18:41*/
-/*Version 2 ML 2021/3/22 18:51 add function header and comments*/
 
-/*Version 1 ZLH*/
 #include "terminal.h"
 #include "keyboard.h"
 #include "types.h"
@@ -35,7 +32,8 @@ int32_t terminal_read(int32_t fd, void* buf, uint32_t nbytes)
 // 	return buffer_index;
 //
     //printf("terminal_read called, buffer address：%x",&buf);
-    terminal_read_flag = 1;
+
+    terminals[scheduled_index].terminal_read_flag = 1;
     terminals[scheduled_index].stdin_enable = 0;
     if(buf == NULL){
         return FAIL;

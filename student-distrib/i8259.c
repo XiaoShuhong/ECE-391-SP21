@@ -1,9 +1,7 @@
 /* i8259.c - Functions to interact with the 8259 interrupt controller
  * vim:ts=4 noexpandtab
  */
-/*Version 1 ZLH 2021/3/21 10:51*/
 
-/*Version 1 ZLH*/
 #include "i8259.h"
 #include "lib.h"
 

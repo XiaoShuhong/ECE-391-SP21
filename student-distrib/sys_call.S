@@ -1,7 +1,6 @@
 /* sys_call.S, assembly linkage for system call functions */
 
-/* Version 1 ML 2021/4/10 15:09 (include function header and comments)*/
-/*Version 1 ML*/
+
 .global sys_call_handler, sys_call_invalid, sys_call_done, sys_call_jumptable
 
 

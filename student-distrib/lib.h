@@ -2,8 +2,7 @@
  * vim:ts=4 noexpandtab
  */
 
-/*Version 1 :ZLH 2021/3/21 22:00*/
-/*Version 2 :ML 2021/3/28 20:04*/
+
 
 #ifndef _LIB_H
 #define _LIB_H

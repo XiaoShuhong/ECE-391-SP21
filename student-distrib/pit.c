@@ -47,7 +47,13 @@ void pit_handler(void){
 
 }
 
-
+/* void scheduling(void)
+ * Description: scheduling, need vedio memory switch and process switch
+ * Inputs: None
+ * Outputs: None
+ * Return value: None
+ * Side effects: 
+ */
 void scheduling(void){
     // if(PCB_array[0] == NULL && PCB_array[1] == NULL && PCB_array[2] == NULL ){
     //     init_shells((uint8_t*)"shell"); 
@@ -57,6 +63,13 @@ void scheduling(void){
 
 
 }
+/* void flush_TLB(void)
+ * Description: redo the TLB after the vedio mapping is change
+ * Inputs: None
+ * Outputs: None
+ * Return value: None
+ * Side effects: 
+ */
 
 void flush_TLB(void){
     asm volatile(
@@ -67,7 +80,13 @@ void flush_TLB(void){
 }
 
 
-
+/* void process_video_switch(void)
+ * Description: change user vedio mapping based on chnage of process
+ * Inputs: None
+ * Outputs: None
+ * Return value: None
+ * Side effects: 
+ */
 
 void process_video_switch(void){
     uint32_t next_running_terminal = (scheduled_index + 1)%3; 
@@ -106,7 +125,14 @@ void process_video_switch(void){
 
 }
 
-
+/* 
+ * int32_t init_shells(const uint8_t* command)
+ *   Description:  load and execute a new shell, handing off the processor to the new program
+ *                until it terminates.
+ *        Inputs: command
+ *        Output: None
+ *        Return: fake return value --> SUCCESS (0) / FAIL (-1)
+ */
 int32_t init_shells(const uint8_t* command){  
     cli(); //unable interupt
     int8_t filename[MAX_FILE_LEN];
@@ -242,7 +268,14 @@ int32_t init_shells(const uint8_t* command){
 
 
 
-
+/* 
+    void process_switch(void)
+ * Description: shift around three process, at least 3 basic shell should be run
+ * Inputs: None
+ * Outputs: None
+ * Return value: None
+ * Side effects: 
+ */
 
 void process_switch(void){
 

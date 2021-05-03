@@ -164,10 +164,13 @@ int32_t halt (uint8_t status){
     if (status == EXCEPTION_STATUS){E_status = EXCEPTION_RETURNVALUE;}
     
     
-    //close video page:
-    PT_for_video[user_PT_index].p=0;// present set to present
-    int32_t PD_entry_index = user_video_start_address >>offset_22; 
-    PD[PD_entry_index].k.p=0; // present set to present
+    if (PCB_array[3]==NULL && PCB_array[4]==NULL && PCB_array[5]==NULL){
+        PT_for_video[user_PT_index].p=0;// present set to present
+        int32_t PD_entry_index = user_video_start_address >>offset_22; 
+        PD[PD_entry_index].k.p=0; // present set to present
+    }
+    // //close video page:
+    
 
 
  
@@ -769,13 +772,14 @@ int32_t vidmap (uint8_t** screen_start){
 
 
 
-    PT_for_video[user_PT_index].ptb_add=video_memory>>shift_twelve;
-    // if(scheduled_index!=current_terminal_number){
-    //     PT_for_video[user_PT_index].ptb_add=(video_memory+four_k*(1+scheduled_index))>>shift_twelve;
-    // }
-    // if(scheduled_index==current_terminal_number){
-    //     PT_for_video[user_PT_index].ptb_add=video_memory>>shift_twelve;
-    // }
+    //PT_for_video[user_PT_index].ptb_add=video_memory>>shift_twelve;
+   
+    if(scheduled_index!=current_terminal_number){
+        PT_for_video[user_PT_index].ptb_add=(video_memory+four_k*(1+scheduled_index))>>shift_twelve;
+    }
+    if(scheduled_index==current_terminal_number){
+        PT_for_video[user_PT_index].ptb_add=video_memory>>shift_twelve;
+    }
     
 
 

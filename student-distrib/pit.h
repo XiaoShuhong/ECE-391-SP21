@@ -8,7 +8,7 @@
 #define pit_irq_number 0
 
 #define PIT_MODE 0x37 
-#define LATCH (1193180 + (1/2)) / 1//11932  //(1193180 + (10/2)) / 10//11932  
+#define LATCH (1193180 + (100/2)) / 100//11932  //(1193180 + (10/2)) / 10//11932  
 #include "types.h"
 extern int32_t scheduled_index;
 void init_pit(void);

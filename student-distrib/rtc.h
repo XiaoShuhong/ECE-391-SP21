@@ -1,7 +1,4 @@
-/*Version 1 :LYC 2021/3/21 13:47*/
-/*Version 2 :ML 2021/3/28 9:10*/
 
-/*Version 1 LYC*/
 #ifndef RTC__
 #define RTC__
 
@@ -35,9 +32,9 @@ int32_t rtc_open(const uint8_t* filename);
 int32_t rtc_close(int32_t fd);
 int32_t rtc_read(int32_t fd, void* buf, uint32_t nbytes);
 int32_t rtc_write(int32_t fd, const void* buf, int32_t nbytes);
-/*Version 2 ML*/
+
 
 #endif
-/*Version 1 LYC*/
+
 
 

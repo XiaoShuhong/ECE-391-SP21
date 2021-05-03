@@ -3,8 +3,7 @@
  * vim:ts=4 noexpandtab
  */
 
-/*Version 1 XSH 2021/3/21 22:10*/
-/*Version 2 LYC 2021/3/22 17:29*/  /*small modification. No structure changes or features are added*/
+
 #ifndef _X86_DESC_H
 #define _X86_DESC_H
 

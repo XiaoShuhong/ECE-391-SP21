@@ -1,5 +1,4 @@
-/*Version 1 ZLH 2021/3/29 18:41*/
-/*Version 1 ZLH*/
+
 #ifndef TERMINAL_H
 #define TERMINAL_H
 
@@ -34,6 +33,8 @@ typedef struct TCB{
     int32_t vidmap;
 
     int32_t running_pid;
+    int32_t terminal_read_flag;
+
 
 
 } TCB;
@@ -48,7 +49,7 @@ int32_t init_terminal_structure();
 char line_buffer[LINE_BUFFER_SIZE];
 char terminal_buffer[LINE_BUFFER_SIZE];  
 int32_t buffer_index;
-int32_t terminal_read_flag;
+// int32_t terminal_read_flag;
 
 extern int b;
 extern TCB terminals[max_terminal_number];
@@ -57,7 +58,7 @@ extern int32_t previous_terminal_number;
 extern int32_t last_meet;
 
 #endif
-/*Version 1 ZLH*/
+
 
 
 

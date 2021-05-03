@@ -1,7 +1,7 @@
-/*Version 1 LYC 2021/3/21 20：05*/
+
 .global rtc_interrupt_handler,keyboard_interrupt_handler,pit_interrupt_handler
 
-/*Version 1 LYC*/
+
 
 
 /* rtc_interrupt_handler()

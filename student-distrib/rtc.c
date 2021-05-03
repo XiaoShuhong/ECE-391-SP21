@@ -1,9 +1,6 @@
 //rtc.c
 
-/*Version 1 :LYC 2021/3/21 13:47*/
-/*Version 2 :ML 2021/3/28 9:10*/
 
-/*Version 1 LYC*/
 #include "rtc.h"
 #include "lib.h"
 #include "i8259.h"
@@ -18,9 +15,7 @@
 #define ATTRIB      0x7
 #define TERMINAL_BAR 5
 
-/*Version 2 ML*/
-// static volatile int interrupt_flag = 0;
-/*Version 2 ML*/
+
 
 /* init_rtc()
  * 
@@ -34,11 +29,11 @@ void init_rtc(){
     //reference:https://wiki.osdev.org/RTC
     cli();
     
-    /*Version 2 ML*/
+
     //turn on the oscillator
     outb(RTC_register_A , RTC_register_number_port);
     outb(RTC_RAM , RTC_register_W_R_port);
-    /*Version 2 ML*/
+
 
     //turn on the periodic interrupt:
     outb(RTC_register_B , RTC_register_number_port);//select register B, and disable NMI
@@ -51,10 +46,7 @@ void init_rtc(){
     outb(RTC_register_C_with_out_disable_NMI , RTC_register_number_port);
     inb(RTC_register_W_R_port);
 
-    /*Version 2 ML*/
-    //no interrupt signal
-    // interrupt_flag = 0;
-    /*Version 2 ML*/
+
 
     //enable the irq8 on pic
     enable_irq(rtc_irq_number);
@@ -100,10 +92,7 @@ void __rtc_interrupt_handler__(){
 
 
 
-   /*Version 2 ML*/
-    //turn on interrupt signal
-    // interrupt_flag = 1;
-    /*Version 2 ML*/
+
 
     send_eoi(rtc_irq_number); //send EOI to tell we have dealed with the interrupt handler
     
@@ -111,7 +100,7 @@ void __rtc_interrupt_handler__(){
 }
 
 
-/*Version 2 ML*/
+
 /*
  * freq_to_rate(freq)
  * DESCRIPTION: change frequency power of 2 to rate
@@ -188,11 +177,11 @@ set_rtc_rate(uint32_t rate){
 int32_t 
 rtc_open(const uint8_t* filename){
 
-    int32_t rate = freq_2_rate(max_HZ);
+    int32_t rate = freq_2_rate(512);
     set_rtc_rate(rate);
 
 
-    current_PCB->rtc_count_val = (max_HZ/two_HZ);
+    current_PCB->rtc_count_val = (512/two_HZ);
 
     //no interrupt signal
     // interrupt_flag = 0;
@@ -273,12 +262,10 @@ rtc_write(int32_t fd, const void* buf, int32_t nbytes){
 
     // set_rtc_rate(rate);
 
-    // interrupt_flag = 0;
 
     current_PCB->rtc_count_val = (max_HZ/freq);
     return SUCCESS;
 
 }
 
-/*Version 2 ML*/
-/*Version 1 LYC*/
+

@@ -1,5 +1,4 @@
 
-/*Version 1 XSH 2021/3/21 22:10*/
 
 // #include "page_assembly.h"
 #include "x86_desc.h"

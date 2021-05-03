@@ -73,3 +73,22 @@ BUG 2 2021/4/17 16:30
 file: system_call.c
 description: When initialize the new 4K page for veido memory, we wrongly set in DLP so user program cannot reach it, cause page fault
 solution: change the page's user/supervisor to 1
+
+/* BUG LOG for CheckPoint 5 */
+BUG 1 2021/5/2 23:55
+file: halt.c
+description: when runing fish in one shell with other user program, when the user program finish, fish crash and page fault
+solution: this is because at cp4, whenwe only have one terminal, at halt we will turn off the user vedio page when the only user program is finished,
+but at cp5, for example, run fish and ls, ls finish faster and turn off the page in halt when fish is still use it. So we do a check for only all the user 
+program is halted, we will turn off the page.
+
+BUG 2 2021/5/3 10:34
+file: rtc.c
+description: In checkpoint2, we do not virtualize the rtc, and directly do the hardware frequency read or write. So, when multiple terminals are realized, rtc can not work correctly.
+solution: Do the virtualization of rtc. By using the file_position parameter of the rtc type file.
+
+
+BUG 3 2021/5/3 10:37
+file: terminal.c
+description: use only one terminal_read_flag parameter to hold in terminal read funciton. So, terminal read can not be used at three shells at the same time.
+solution: In terminals, set three terminal_read_flag.

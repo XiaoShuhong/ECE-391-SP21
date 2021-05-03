@@ -180,7 +180,13 @@ keyboard_handler(void){
             add_buffer(terminals[current_terminal_number].line_buffer,keyprinted,terminals[current_terminal_number]._buffer_index);
             terminals[current_terminal_number]._buffer_index++;
 
-            if(terminal_read_flag == 0){ //This is used to solve the problem of terminal read when pressing enter
+
+
+
+
+
+
+            if(terminals[current_terminal_number].terminal_read_flag == 0){ //This is used to solve the problem of terminal read when pressing enter
                 clear_buffer(terminals[current_terminal_number].line_buffer);
                 terminals[current_terminal_number]._buffer_index = 0;
             }
@@ -201,9 +207,11 @@ keyboard_handler(void){
         }
 
         add_buffer(terminals[current_terminal_number].line_buffer,keyprinted,terminals[current_terminal_number]._buffer_index);
-        terminals[current_terminal_number]._buffer_index++;
+        if(terminals[current_terminal_number]._buffer_index < LINE_BUFFER_SIZE){
+            terminals[current_terminal_number]._buffer_index++;
+            putc_normal(keyprinted);
+        }
 
-        putc_normal(keyprinted);
     }
     sti();
 }
@@ -287,7 +295,7 @@ int32_t copy_buffer(void* buf){
     int i;
     while(terminals[scheduled_index].stdin_enable != 1){}
 
-
+///////////////////////////////////////////////////////////
     int buffer_index = terminals[scheduled_index]._buffer_index;
     num = buffer_index;
 
@@ -301,7 +309,7 @@ int32_t copy_buffer(void* buf){
     clear_buffer(terminals[scheduled_index].line_buffer);
     terminals[scheduled_index]._buffer_index= 0;
 
-    terminal_read_flag = 0;
+    terminals[scheduled_index].terminal_read_flag = 0;
     return num;
 }
 

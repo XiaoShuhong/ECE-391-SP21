@@ -115,7 +115,6 @@ int32_t halt (uint8_t status){
     cli();
 
     
-    program_count = program_count-1;
     
 
 
@@ -123,6 +122,8 @@ int32_t halt (uint8_t status){
     if (current_PCB == NULL){
         return FAIL;
     }
+    
+    program_count = program_count-1;
 
     /* deal with the occasion of the base shell */
     if ((current_PCB -> parent_pid) == -1){
@@ -261,7 +262,6 @@ int32_t execute(const uint8_t* command){
     // if (is_shell==1){
     //     shell_count = shell_count + 1;
     // }
-    program_count+=1;
 
     
     if(read_dentry_by_name((uint8_t*)filename,&tar_dentry)==FAIL){//check if it is a file in file system
@@ -303,7 +303,7 @@ int32_t execute(const uint8_t* command){
 
     //update current PCB;
     current_PCB=PCB_array[new_pid];
-
+    program_count+=1;
 
 
     //save process information to current_PCB

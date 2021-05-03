@@ -272,19 +272,19 @@ void putc_background(uint8_t c){
 void putc(uint8_t c) {
 
     /* This occasion is for the init three shells */
-    if((current_terminal_number == 0)  && (a == 0)  ){ // a is int 0 and will be set to 1 when process switch
+    if((current_terminal_number == 0)  && (is_process_switch == 0)  ){ // is_process_switch is int 0 and will be set to 1 when process switch
         putc_normal(c);
         return;
     }
 
     /* This occasion is for the running terminal */
-    if((current_terminal_number == scheduled_index) && (a == 1) && (b == 1)){ // b is init 0 and will be set to 1 when terminal switch
+    if((current_terminal_number == scheduled_index) && (is_process_switch == 1) && (is_terminal_switch == 1)){ // is_terminal_switch is init 0 and will be set to 1 when terminal switch
         putc_normal(c);
         return;
     }
 
     /* This occasion is for the background terminal */
-    if((current_terminal_number != scheduled_index) && (a == 1) && (b == 1)){
+    if((current_terminal_number != scheduled_index) && (is_process_switch == 1) && (is_terminal_switch == 1)){
         putc_background(c);
         return;
     }

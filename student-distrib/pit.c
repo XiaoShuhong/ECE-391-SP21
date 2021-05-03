@@ -11,7 +11,7 @@
 
 
 int32_t scheduled_index=-1;
-int a = 0;
+int is_process_switch = 0;
 
 
 /* void init_pit(void)
@@ -346,7 +346,7 @@ void process_switch(void){
         }
         init_shells((uint8_t*)"shell"); 
     }
-    a = 1;
+    is_process_switch = 1;
 
     
     uint32_t next_pid = terminals[scheduled_index].running_pid;

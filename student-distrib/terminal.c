@@ -163,10 +163,10 @@ init_terminal_structure(){
     return SUCCESS;
 }
 
-int b = 1;
+int is_terminal_switch = 1;
 int32_t switch_terminal(int32_t terminal_number){
 
-    b = 0;
+    is_terminal_switch = 0;
     int32_t _screen_x = 0;
     int32_t _screen_y = 0;
 
@@ -174,7 +174,7 @@ int32_t switch_terminal(int32_t terminal_number){
     // int i; // loop index
     /* if the terminal is already the terminal_number th terminal, return -1 */
     if (terminal_number == current_terminal_number){
-        b = 1;
+        is_terminal_switch = 1;
         return FAIL;
     }
 
@@ -243,7 +243,7 @@ int32_t switch_terminal(int32_t terminal_number){
     screen_x = 0;
     screen_y = 0;
     printf("This is Terminal # %d",terminal_number);
-    b = 1;
+    is_terminal_switch = 1;
     update_cursor(20, 0);
     if((_screen_x != 0) || (_screen_y != 0)){
         screen_x = _screen_x;

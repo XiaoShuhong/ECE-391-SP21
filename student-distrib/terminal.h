@@ -35,6 +35,12 @@ typedef struct TCB{
     int32_t running_pid;
     int32_t terminal_read_flag;
 
+    int32_t buffer_memory_index;
+
+    char temp[10][LINE_BUFFER_SIZE];
+    int32_t temp_index; //指向最后一个可写的空位置
+    int32_t index;
+
 
 
 } TCB;

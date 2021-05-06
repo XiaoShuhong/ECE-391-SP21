@@ -13,7 +13,8 @@
 #include "idt.h"
 #include "rtc.h"
 #include "terminal.h"
-
+#include "buddy_sys.h"
+#define four_kb 0
 #define PASS 1
 // #define FAIL 0
 #define KEYBOARD_IRQ 1
@@ -500,9 +501,20 @@ output: 0 for pass
 // 	}
 // 	return FAIL;
 // }
-
+int32_t malloc(uint32_t order){
+	int32_t current =mem_allco(order);
+	if(current == -1){
+		printf("fail to malloc " );
+		return FAIL;
+	}else{
+		demo_show_linked_list();
+	}
+	return PASS;
+}
 /* Test suite entry point */
 void launch_tests(){
+	int32_t address = malloc(four_kb);//malloc 4kb 
+	free(address);
 	
 	// TEST_OUTPUT("idt_test", idt_test());
     

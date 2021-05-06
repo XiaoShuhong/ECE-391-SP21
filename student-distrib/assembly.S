@@ -1,5 +1,5 @@
 
-.global rtc_interrupt_handler,keyboard_interrupt_handler,pit_interrupt_handler
+.global rtc_interrupt_handler,keyboard_interrupt_handler,pit_interrupt_handler,mouse_interrupt_handler,sound_interrupt_handler
 
 
 
@@ -46,5 +46,24 @@ pit_interrupt_handler:
     popal
     iret       /*we should return to program after interrupt*/
 /*Version 1 LYC*/
+
+
+mouse_interrupt_handler:
+    pushal
+    pushfl      /*save all gereral purpose register and EGLAG*/
+    call mouse_handler
+    popfl
+    popal
+    iret       /*we should return to program after interrupt*/
+
+
+
+sound_interrupt_handler:
+    pushal
+    pushfl      /*save all gereral purpose register and EGLAG*/
+    call sound_handler
+    popfl
+    popal
+    iret       /*we should return to program after interrupt*/
 
 

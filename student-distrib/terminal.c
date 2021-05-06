@@ -159,6 +159,9 @@ init_terminal_structure(){
         terminals[i].current_process = NULL;
         terminals[i].stdin_enable = 0;
         terminals[i].vidmap = 0;
+        terminals[i].buffer_memory_index = 0;
+        terminals[i].temp_index = 0;
+        terminals[i].index = 0;
     }
     return SUCCESS;
 }

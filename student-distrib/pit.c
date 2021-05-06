@@ -26,8 +26,8 @@ void init_pit(void){
     outb(PIT_MODE, PIT_COMMAND_PORT);
     outb((uint8_t)((uint32_t)(LATCH) && 0xff), PIT_DATA_PORT_CHANNEL0);
     outb((uint8_t)((uint32_t)(LATCH) >> 8), PIT_DATA_PORT_CHANNEL0);
-
     enable_irq(pit_irq_number);
+
    
 }
 
@@ -89,6 +89,7 @@ void flush_TLB(void){
  */
 
 void process_video_switch(void){
+    cli();
     uint32_t next_running_terminal = (scheduled_index + 1)%3; 
     if(current_terminal_number!=next_running_terminal){
        
@@ -121,6 +122,7 @@ void process_video_switch(void){
         
         last_meet = 1;
     }
+    sti();
 
 
 }

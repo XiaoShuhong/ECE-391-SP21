@@ -141,8 +141,18 @@ void init_idt(){
     idt[PIT_IDT_INDEX].present = 1;
     idt[RTC_IDT_INDEX].reserved3 = 0;
 
+    SET_IDT_ENTRY(idt[MOUSE_INDEX],mouse_interrupt_handler);
+    idt[MOUSE_INDEX].present = 1;
+    idt[MOUSE_INDEX].reserved3 = 0;
+
+    SET_IDT_ENTRY(idt[SOUND_INDEX],sound_interrupt_handler);
+    idt[SOUND_INDEX].present = 1;
+    idt[SOUND_INDEX].reserved3 = 0;
 
     lidt(idt_desc_ptr);
     sti();
     return;
 }
+
+
+

@@ -9,6 +9,7 @@ void PAGE_ON();
 PDE PD[entry_num];// __attribute__((aligned (four_k)));
 PTE PT[entry_num];
 PTE PT_for_video[entry_num];
+PTE PT_for_heap [entry_num];
 
 /*
 init_page:

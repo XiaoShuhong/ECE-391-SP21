@@ -16,6 +16,9 @@
 #include "systemfile.h"
 #include "system_call.h"
 #include"pit.h"
+#include "mouse.h"
+#include "sound.h"
+#include "buddy_sys.h"
 // #include "idt.h"
 #define RUN_TESTS
 
@@ -163,14 +166,24 @@ void entry(unsigned long magic, unsigned long addr) {
      * PIC, any other initialization stuff... */
 
     i8259_init();
+    
     init_keyboard();
+    
     init_page();
     init_sysfile();
     init_rtc();
     init_fop_table();
     init_terminal_structure();
     clear();
-    init_pit();
+    cli();
+    
+    init_mouse();
+    
+    
+    init_heap();
+    init_pit(); 
+    //launch_tests();
+    sti();
     
     /* Enable interrupts */
     /* Do not enable the following until after you have set up your

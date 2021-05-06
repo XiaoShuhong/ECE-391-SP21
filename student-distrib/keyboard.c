@@ -286,10 +286,10 @@ int32_t special_scancode_handler(uint8_t scan_code){
     
             play_back_sound("music");
             return 1;
-        // case F5:
-        //     printf("F5");
-        //     enable_irq(irq_sound);
-        //     return 1;
+        case F5:
+            printf("F5");
+            DSP_write(0xD0);
+            return 1;
         case ESC:
             return 1;
         case TAB_PRESSED:
